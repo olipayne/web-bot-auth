@@ -1,0 +1,31 @@
+{
+    "name": "web-bot-auth-repo",
+    "description": "The monorepo for web-bot-auth",
+    "type": "module",
+    "keywords": [
+        "web-bot-auth",
+        "typescript"
+    ],
+    "author": "Thibault Meunier",
+    "private": true,
+    "scripts": {
+        "build": "npm run build -w jwk-thumbprint",
+        "format": "npm run lint -- --fix",
+        "lint": "eslint packages/jwk-thumbprint/**/*.ts eslint.config.mjs"
+    },
+    "license": "MIT",
+    "version": "0.0.0",
+    "devDependencies": {
+      "@eslint/js": "^9.21.0",
+      "eslint": "^9.21.0",
+      "eslint-plugin-security": "^3.0.1",
+      "tsup": "^8.4.0",
+      "typescript": "^5.7.3",
+      "typescript-eslint": "^8.25.0",
+      "vitest": "^3.0.7"
+    },
+    "workspaces": [
+        "packages/*"
+    ]
+}
+  
