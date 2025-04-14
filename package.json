@@ -9,10 +9,10 @@
   "author": "Thibault Meunier",
   "private": true,
   "scripts": {
-    "build": "npm run build -w httpsig -w jsonwebkey-thumbprint -w web-bot-auth",
+    "build": "npm run build -w http-message-sig -w jsonwebkey-thumbprint -w web-bot-auth",
     "format": "npm run lint -- --fix",
     "lint": "eslint packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
-    "test": "npm run test -w httpsig -- --run && npm run test -w jsonwebkey-thumbprint -- --run"
+    "test": "npm run test -w http-message-sig -- --run && npm run test -w jsonwebkey-thumbprint -- --run"
   },
   "license": "Apache-2.0",
   "version": "0.0.0",

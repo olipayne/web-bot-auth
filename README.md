@@ -16,7 +16,14 @@ It implements all components required by Web Bot Authentication defined by [draf
 
 ### Live deployment
 
-http-message-signatures-example.research.cloudflare.com
+Cloudflare Research provides a live environment at [http-message-signatures-example.research.cloudflare.com](https://http-message-signatures-example.research.cloudflare.com/).
+
+This deployment allows to test your implementation.
+
+1. It validates the presence of a `Signature` header signed [RFC9421 ed25519 test key](./examples/rfc9421-keys/ed25519.pem),
+2. It exposes a bot directory on [/.well-known/http-message-signatures-directory](https://http-message-signatures-example.research.cloudflare.com/.well-known/http-message-signatures-directory),
+3. It provides explanation about the protocol.
+
 
 ### Signing
 
@@ -37,7 +44,7 @@ This repository uses npm workspaces. There are 3 packages which it provides
 
 | Package                                                    | Description                                                                            |
 |:-----------------------------------------------------------|:---------------------------------------------------------------------------------------|
-| [httpsig](./packages/httpsig/)                             | HTTP Message Signatures as defined in RFC 9421                                         |
+| [http-message-sig](./packages/http-message-sig/)           | HTTP Message Signatures as defined in RFC 9421                                         |
 | [jsonwebkey-thumbprint](./packages/jsonwebkey-thumbprint/) | JWK Thumbprint as defined in RFC 7638                                                  |
 | [web-bot-auth](./packages/web-bot-auth/)                   | HTTP Message Signatures for Bots as defined in draft-meunier-web-bot-auth-architecture |
 

@@ -1,7 +1,7 @@
-# httpsig
+# http-message-sig
 
-![License](https://img.shields.io/npm/l/httpsig.svg)
-[![crates.io](https://img.shields.io/npm/v/httpsig.svg)][npm]
+![License](https://img.shields.io/npm/l/http-message-sig.svg)
+[![crates.io](https://img.shields.io/npm/v/http-message-sig.svg)][npm]
 
 [npm]: https://www.npmjs.com/package/jsonwebkey-thumbprint
 
@@ -26,7 +26,7 @@ Forked from [ltonetwork/http-message-signatures](https://github.com/ltonetwork/h
 ## Usage
 
 ```typescript
-import { sign, verify } from "httpsig"
+import { sign, verify } from "http-message-sig"
 
 ```
 

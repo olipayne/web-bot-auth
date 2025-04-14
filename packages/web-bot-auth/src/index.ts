@@ -1,5 +1,5 @@
-import { Component, Directory as HTTPMessageSignaturesDirectory, RequestLike, ResponseLike, SignatureHeaders, Signer, SignerSync, signatureHeaders as httpsigSignatureHeaders, signatureHeadersSync as httpsigSignatureHeadersSync } from 'httpsig';
-// export { HTTP_MESSAGE_SIGNATURES_DIRECTORY, MediaType } from 'httpsig';
+import { Component, Directory as HTTPMessageSignaturesDirectory, RequestLike, ResponseLike, SignatureHeaders, Signer, SignerSync, signatureHeaders as httpsigSignatureHeaders, signatureHeadersSync as httpsigSignatureHeadersSync } from '../../http-message-sig/dist';
+// export { HTTP_MESSAGE_SIGNATURES_DIRECTORY, MediaType } from 'http-message-sig';
 export { jwkThumbprint as jwkToKeyID } from 'jsonwebkey-thumbprint';
 
 export const REQUEST_COMPONENTS: Component[] = ['@authority'];
