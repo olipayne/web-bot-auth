@@ -1,9 +1,9 @@
-# jwk-thumbprint
+# jsonwebkey-thumbprint
 
-![License](https://img.shields.io/npm/l/jwk-thumbprint.svg)
-[![crates.io](https://img.shields.io/npm/v/jwk-thumbprint.svg)][npm]
+![License](https://img.shields.io/npm/l/jsonwebkey-thumbprint.svg)
+[![crates.io](https://img.shields.io/npm/v/jsonwebkey-thumbprint.svg)][npm]
 
-[npm]: https://www.npmjs.com/package/jwk-thumbprint
+[npm]: https://www.npmjs.com/package/jsonwebkey-thumbprint
 
 Variable-Length Integer Encoding defined by [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638.html).
 
@@ -23,7 +23,7 @@ Variable-Length Integer Encoding defined by [RFC 7638](https://www.rfc-editor.or
 ## Usage
 
 ```typescript
-import { jwkThumbprint } from "jwk-thumbprint"
+import { jwkThumbprint } from "jsonwebkey-thumbprint"
 
 // A public key exported as a JWK
 const keypair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify'])

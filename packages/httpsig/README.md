@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/npm/l/httpsig.svg)
 [![crates.io](https://img.shields.io/npm/v/httpsig.svg)][npm]
 
-[npm]: https://www.npmjs.com/package/jwk-thumbprint
+[npm]: https://www.npmjs.com/package/jsonwebkey-thumbprint
 
 HTTP Message Signatures defined by [RFC 9421](https://www.rfc-editor.org/rfc/rfc9421.html).
 

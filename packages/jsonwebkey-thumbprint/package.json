@@ -1,5 +1,5 @@
 {
-  "name": "jwk-thumbprint",
+  "name": "jsonwebkey-thumbprint",
   "version": "0.1.0",
   "description": "JWK Thumbprint defined by RFC 7638",
   "main": "./dist/index.js",
@@ -25,7 +25,7 @@
     "directory": "packages/jwt-thumbprint"
   },
   "keywords": [
-    "jwk-thumbprint",
+    "jsonwebkey-thumbprint",
     "rfc7638",
     "cryptography",
     "jwk",

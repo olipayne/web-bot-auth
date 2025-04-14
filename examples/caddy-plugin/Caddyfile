@@ -1,0 +1,14 @@
+:8080 {
+    route {
+        # httpsig middleware is used here
+        httpsig {
+            # This domain should have /.well-known/http-message-signatures-directory defined
+            directory_base http-message-signatures-example.research.cloudflare.com
+        }
+        
+        # Responds if signature is valid
+        handle {
+            respond "Signature verification succeeded!" 200
+        }
+    }
+}

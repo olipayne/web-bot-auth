@@ -1,13 +1,23 @@
+// HTTP Message Signatures Algorithms Registry at IANA
+// https://www.iana.org/assignments/http-message-signature/http-message-signature.xhtml#signature-algorithms
+export type Algorithm =
+  'rsa-pss-sha512' |
+  'rsa-v1_5-sha256' |
+  'hmac-sha256' |
+  'ecdsa-p256-sha256' |
+  'ecdsa-p384-sha384' |
+  'ed25519'
+
 export interface Signer {
   sign: (data: string) => Uint8Array | Promise<Uint8Array>;
   keyid: string;
-  alg: string;
+  alg: Algorithm;
 }
 
 export interface SignerSync {
   signSync: (data: string) => Uint8Array;
   keyid: string;
-  alg: string;
+  alg: Algorithm;
 }
 
 export type Verify<T> = (data: string, signature: Uint8Array, params: Parameters) => T | Promise<T>;
@@ -81,3 +91,12 @@ export type SignSyncOptions = StandardParameters & {
   signer: SignerSync;
   [name: Parameter]: Component[] | SignerSync | string | number | true | Date | { [Symbol.toStringTag]: () => string } | undefined;
 };
+
+export interface SignatureHeaders {
+  'Signature': string;
+  'Signature-Input': string;
+};
+
+export interface Directory {
+  keys: JsonWebKey
+}

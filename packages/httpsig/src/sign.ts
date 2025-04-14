@@ -3,6 +3,7 @@ import {
   Parameters,
   RequestLike,
   ResponseLike,
+  SignatureHeaders,
   SignOptions,
   SignSyncOptions,
 } from './types';
@@ -12,7 +13,7 @@ import { encode as base64Encode } from './base64';
 const defaultRequestComponents: Component[] = ['@method', '@path', '@query', '@authority', 'content-type', 'digest'];
 const defaultResponseComponents: Component[] = ['@status', 'content-type', 'digest'];
 
-export async function sign<T extends RequestLike | ResponseLike>(message: T, opts: SignOptions): Promise<T> {
+export async function signatureHeaders<T extends RequestLike | ResponseLike>(message: T, opts: SignOptions): Promise<SignatureHeaders> {
   const { signer, components: _components, key: _key, ...params } = opts;
 
   const components = _components ?? ('status' in message ? defaultResponseComponents : defaultRequestComponents);
@@ -31,18 +32,10 @@ export async function sign<T extends RequestLike | ResponseLike>(message: T, opt
   const signature = await signer.sign(dataToSign);
   const sigBase64 = base64Encode(signature);
 
-  if (typeof message.headers.set === 'function') {
-    message.headers.set('Signature', `${key}=:${sigBase64}:`);
-    message.headers.set('Signature-Input', `${key}=${signatureInputString}`);
-  } else {
-    message.headers['Signature'] = `${key}=:${sigBase64}:`;
-    message.headers['Signature-Input'] = `${key}=${signatureInputString}`;
-  }
-
-  return message;
+  return { 'Signature': `${key}=:${sigBase64}:`, 'Signature-Input': `${key}=${signatureInputString}` };
 }
 
-export function signatureHeadersSync<T extends RequestLike | ResponseLike>(message: T, opts: SignSyncOptions) {
+export function signatureHeadersSync<T extends RequestLike | ResponseLike>(message: T, opts: SignSyncOptions): SignatureHeaders {
   const { signer, components: _components, key: _key, ...params } = opts;
 
   const components = _components ?? ('status' in message ? defaultResponseComponents : defaultRequestComponents);

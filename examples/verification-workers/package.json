@@ -1,0 +1,21 @@
+{
+	"name": "verification-workers",
+	"version": "0.1.0",
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"cf-typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.7.5",
+		"@cloudflare/workers-types": "^4.20250406.0",
+		"typescript": "^5.5.2",
+		"vitest": "~3.0.7",
+		"wrangler": "^4.7.2"
+	},
+	"dependencies": {
+		"http-message-signatures": "file:vendor/http-message-signatures-0.0.0.tgz"
+	}
+}

@@ -1,0 +1,41 @@
+{
+  "name": "web-bot-auth",
+  "version": "0.1.0",
+  "description": "Web Bot Authentication using HTTP Message Signatures",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --clean",
+    "prepublishOnly": "npm run build",
+    "test": "vitest",
+    "watch": "npm run build -- --watch src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudflareresearch/web-bot-auth.git",
+    "directory": "packages/web-bot-auth"
+  },
+  "keywords": [
+    "web-bot-auth",
+    "cryptography",
+    "typescript"
+  ],
+  "author": "Thibault Meunier",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/cloudflareresearch/web-bot-auth/issues"
+  },
+  "homepage": "https://github.com/cloudflareresearch/web-bot-auth#readme",
+  "dependencies": {
+    "httpsig": "^0.1.0",
+    "jsonwebkey-thumbprint": "^0.1.0"
+  }
+}

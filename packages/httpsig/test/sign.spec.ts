@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { sign, Signer, RequestLike, ResponseLike } from '../src';
+import { signatureHeaders, Signer, RequestLike, ResponseLike } from '../src';
 import { encode as base64Encode } from '../src/base64';
 
 const sampleRequest: RequestLike = {
@@ -49,10 +49,8 @@ describe('sign', () => {
         },
       };
 
-      const signedRequest = await sign(sampleRequest, { signer, created });
-      expect(signedRequest.headers).to.deep.equal({
-        'Content-Type': 'application/json',
-        Digest: 'SHA-256=abcdef',
+      const signedRequest = await signatureHeaders(sampleRequest, { signer, created });
+      expect(signedRequest).to.deep.equal({
         Signature: `sig1=:${expectedHashBase64}:`,
         'Signature-Input':
           'sig1=("@method" "@path" "@query" "@authority" "content-type" "digest");created=1681004344;keyid="test-key";alg="hmac-sha256"',
@@ -78,10 +76,8 @@ describe('sign', () => {
         },
       };
 
-      const signedRequest = await sign(sampleRequest, { signer, components, created });
-      expect(signedRequest.headers).to.deep.equal({
-        'Content-Type': 'application/json',
-        Digest: 'SHA-256=abcdef',
+      const signedRequest = await signatureHeaders(sampleRequest, { signer, components, created });
+      expect(signedRequest).to.deep.equal({
         Signature: `sig1=:${expectedHashBase64}:`,
         'Signature-Input':
           'sig1=("@authority" "@method" "@path" "digest");created=1681004344;keyid="test-key";alg="hmac-sha256"',
@@ -104,10 +100,8 @@ describe('sign', () => {
         },
       };
 
-      const signedRequest = await sign(sampleRequest, { components, signer, created, key: 'foo' });
-      expect(signedRequest.headers).to.deep.equal({
-        'Content-Type': 'application/json',
-        Digest: 'SHA-256=abcdef',
+      const signedRequest = await signatureHeaders(sampleRequest, { components, signer, created, key: 'foo' });
+      expect(signedRequest).to.deep.equal({
         Signature: `foo=:${expectedHashBase64}:`,
         'Signature-Input': 'foo=("@authority");created=1681004344;keyid="test-key";alg="hmac-sha256"',
       });
@@ -132,11 +126,8 @@ describe('sign', () => {
         },
       };
 
-      const signedResponse = await sign(sampleResponse, { signer, created });
-      expect(signedResponse.headers).to.deep.equal({
-        'Content-Type': 'text/plain',
-        'X-Total': '200',
-        Digest: 'SHA-256=abcdef',
+      const signedResponse = await signatureHeaders(sampleResponse, { signer, created });
+      expect(signedResponse).to.deep.equal({
         Signature: `sig1=:${expectedHashBase64}:`,
         'Signature-Input':
           'sig1=("@status" "content-type" "digest");created=1681004344;keyid="test-key";alg="hmac-sha256"',
@@ -161,11 +152,8 @@ describe('sign', () => {
         },
       };
 
-      const signedRequest = await sign(sampleResponse, { signer, components, created });
-      expect(signedRequest.headers).to.deep.equal({
-        'Content-Type': 'text/plain',
-        'X-Total': '200',
-        Digest: 'SHA-256=abcdef',
+      const signedRequest = await signatureHeaders(sampleResponse, { signer, components, created });
+      expect(signedRequest).to.deep.equal({
         Signature: `sig1=:${expectedHashBase64}:`,
         'Signature-Input': 'sig1=("@status" "digest" "x-total");created=1681004344;keyid="test-key";alg="hmac-sha256"',
       });

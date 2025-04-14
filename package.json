@@ -9,10 +9,10 @@
   "author": "Thibault Meunier",
   "private": true,
   "scripts": {
-    "build": "npm run build -w httpsig -w jwk-thumbprint",
+    "build": "npm run build -w httpsig -w jsonwebkey-thumbprint -w web-bot-auth",
     "format": "npm run lint -- --fix",
-    "lint": "eslint packages/**/*.ts eslint.config.mjs",
-    "test": "npm run test -w httpsig -- --run && npm run test -w jwk-thumbprint -- --run"
+    "lint": "eslint packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
+    "test": "npm run test -w httpsig -- --run && npm run test -w jsonwebkey-thumbprint -- --run"
   },
   "license": "Apache-2.0",
   "version": "0.0.0",
@@ -27,5 +27,6 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "packageManager": "npm@11.3.0"
 }
