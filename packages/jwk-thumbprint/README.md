@@ -5,7 +5,7 @@
 
 [npm]: https://www.npmjs.com/package/jwk-thumbprint
 
-Variable-Length Integer Encoding defined by [RFC 9000](https://www.rfc-editor.org/rfc/rfc9000.html#name-variable-length-integer-enc).
+Variable-Length Integer Encoding defined by [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638.html).
 
 ## Tables of Content
 
@@ -31,7 +31,7 @@ const jwk = await crypto.subtle.exportKey('jwk', keypair.publicKey)
 
 // Using sha-256 as a hash function and base64url as encoding
 const hash = (b: BufferSource) => crypto.subtle.digest('SHA-256', b);
-const decode = (u: ArrayBuffer) => b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u))));
+const decode = (u: ArrayBuffer) => b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u))))
 
 // Compute the JWK Thumbprint for the public key
 console.log(await jwkThumbprint(jwk))
@@ -53,8 +53,8 @@ This software has not been audited. Please use at your sole discretion.
 
 ## License
 
-This project is under the MIT license.
+This project is under the Apache-2.0 license.
 
 ### Contribution
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you shall be MIT licensed as above, without any additional terms or conditions.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you shall be Apache-2.0 licensed as above, without any additional terms or conditions.

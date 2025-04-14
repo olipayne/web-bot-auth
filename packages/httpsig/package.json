@@ -1,7 +1,7 @@
 {
-  "name": "jwk-thumbprint",
+  "name": "httpsig",
   "version": "0.1.0",
-  "description": "JWK Thumbprint defined by RFC 7638",
+  "description": "HTTP Message Signatures defined by RFC 9421",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,6 @@
     }
   },
   "scripts": {
-    "bench": "vitest bench",
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
     "prepublishOnly": "npm run build",
     "test": "vitest",
@@ -22,16 +21,20 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cloudflareresearch/web-bot-auth.git",
-    "directory": "packages/jwt-thumbprint"
+    "directory": "packages/httpsig"
   },
   "keywords": [
-    "jwk-thumbprint",
-    "rfc7638",
+    "httpsig",
+    "rfc9421",
     "cryptography",
-    "jwk",
+    "http-message-signatures",
     "typescript"
   ],
-  "author": "Thibault Meunier",
+  "contributors": [
+      "Daniel Hensby",
+      "LTO Network",
+      "Thibault Meunier"
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/cloudflareresearch/web-bot-auth/issues"
