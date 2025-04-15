@@ -16,6 +16,6 @@
 		"wrangler": "^4.7.2"
 	},
 	"dependencies": {
-		"web-bot-auth": "^0.0.3"
+		"web-bot-auth": "^0.0.4"
 	}
 }
