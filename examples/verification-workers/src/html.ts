@@ -255,6 +255,17 @@ footer {
     <p>
     This website expose an endpoint dropping incoming request headers on <a>/debug</a>
     </p>
+
+    <h2>I have comments and want to contribute. Where do I go?</h2>
+    <p>
+    First off, this is fantasatic news!
+    </p>
+    <p>
+    To contribute to this website, you can go to <a href="https://github.com/cloudflareresearch/web-bot-auth">cloudflareresearch/web-bot-auth</a>.
+    </p>
+    <p>
+    To contribute to the standard discussion, the current draft is hosted on <a href="https://github.com/thibmeu/http-message-signatures-directory">thibmeu/http-message-signatures-directory</a>, and is being discussed on <a href="https://mailarchive.ietf.org/arch/browse/web-bot-auth/">web-bot-auth</a> IETF mailing list.
+    </p>
   </section>
 </body>
 </html>`;
