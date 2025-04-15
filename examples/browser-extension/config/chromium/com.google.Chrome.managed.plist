@@ -14,7 +14,7 @@
             <key>installation_mode</key>
             <string>force_installed</string>
             <key>update_url</key>
-            <string>https://http-message-signatures-extensions.thibmeu.com/update.xml</string>
+            <string>http://localhost:8000/update.xml</string>
         </dict>
     </dict>
 </dict>
