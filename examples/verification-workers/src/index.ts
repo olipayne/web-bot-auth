@@ -29,7 +29,7 @@ const getDirectory = async (): Promise<Directory> => {
 async function verifyEd25519(
 	data: string,
 	signature: Uint8Array,
-	_params: VerificationParams
+	params: VerificationParams
 ) {
 	// note that here we use getDirectory, but this is as simple as a fetch
 	const directory = await getDirectory();
