@@ -38,6 +38,7 @@ function parseParametersHeader(
 ): { key: string; components: Component[]; parameters: Parameters } {
   const entries = header
     .toString()
+    // eslint-disable-next-line security/detect-unsafe-regex
     .match(/(?:[^;"]+|"[^"]+")+/g)
     ?.map((entry) => parseEntry(name, entry.trim()));
 

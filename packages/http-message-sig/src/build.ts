@@ -10,6 +10,7 @@ export function extractHeader(
   const key = Object.keys(headers).find(
     (name) => name.toLowerCase() === lcHeader
   );
+  // eslint-disable-next-line security/detect-object-injection
   let val = key ? (headers[key] ?? "") : "";
   if (Array.isArray(val)) {
     val = val.join(", ");

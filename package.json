@@ -10,8 +10,8 @@
   "private": true,
   "scripts": {
     "build": "npm run build -w http-message-sig -w jsonwebkey-thumbprint -w web-bot-auth",
-    "format": "prettier --write .",
-    "lint": "eslint examples/**/*.ts packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
+    "format": "prettier --write . && eslint examples/**/*.ts packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs --fix",
+    "lint": "prettier . && eslint examples/**/*.ts packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
     "test": "npm run test -w http-message-sig -- --run && npm run test -w jsonwebkey-thumbprint -- --run"
   },
   "license": "Apache-2.0",
