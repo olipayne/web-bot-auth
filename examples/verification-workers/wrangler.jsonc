@@ -2,13 +2,15 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "http-message-signatures-verification",
 	"account_id": "022362f27de5264a50ce60cb23293c9f",
-	"routes": [{
-		"pattern": "http-message-signatures-example.research.cloudflare.com",
-		"custom_domain": true
-	}],
+	"routes": [
+		{
+			"pattern": "http-message-signatures-example.research.cloudflare.com",
+			"custom_domain": true,
+		},
+	],
 	"main": "src/index.ts",
 	"compatibility_date": "2025-04-06",
 	"observability": {
-		"enabled": true
-	}
+		"enabled": true,
+	},
 }

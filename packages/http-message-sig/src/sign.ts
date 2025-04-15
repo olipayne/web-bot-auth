@@ -6,18 +6,36 @@ import {
   SignatureHeaders,
   SignOptions,
   SignSyncOptions,
-} from './types';
-import { buildSignatureInputString, buildSignedData } from './build';
-import { encode as base64Encode } from './base64';
+} from "./types";
+import { buildSignatureInputString, buildSignedData } from "./build";
+import { encode as base64Encode } from "./base64";
 
-const defaultRequestComponents: Component[] = ['@method', '@path', '@query', '@authority', 'content-type', 'digest'];
-const defaultResponseComponents: Component[] = ['@status', 'content-type', 'digest'];
+const defaultRequestComponents: Component[] = [
+  "@method",
+  "@path",
+  "@query",
+  "@authority",
+  "content-type",
+  "digest",
+];
+const defaultResponseComponents: Component[] = [
+  "@status",
+  "content-type",
+  "digest",
+];
 
-export async function signatureHeaders<T extends RequestLike | ResponseLike>(message: T, opts: SignOptions): Promise<SignatureHeaders> {
+export async function signatureHeaders<T extends RequestLike | ResponseLike>(
+  message: T,
+  opts: SignOptions
+): Promise<SignatureHeaders> {
   const { signer, components: _components, key: _key, ...params } = opts;
 
-  const components = _components ?? ('status' in message ? defaultResponseComponents : defaultRequestComponents);
-  const key = _key ?? 'sig1';
+  const components =
+    _components ??
+    ("status" in message
+      ? defaultResponseComponents
+      : defaultRequestComponents);
+  const key = _key ?? "sig1";
 
   const signParams: Parameters = {
     created: new Date(),
@@ -26,20 +44,33 @@ export async function signatureHeaders<T extends RequestLike | ResponseLike>(mes
     ...(params as Parameters),
   };
 
-  const signatureInputString = buildSignatureInputString(components, signParams);
+  const signatureInputString = buildSignatureInputString(
+    components,
+    signParams
+  );
   const dataToSign = buildSignedData(message, components, signatureInputString);
 
   const signature = await signer.sign(dataToSign);
   const sigBase64 = base64Encode(signature);
 
-  return { 'Signature': `${key}=:${sigBase64}:`, 'Signature-Input': `${key}=${signatureInputString}` };
+  return {
+    Signature: `${key}=:${sigBase64}:`,
+    "Signature-Input": `${key}=${signatureInputString}`,
+  };
 }
 
-export function signatureHeadersSync<T extends RequestLike | ResponseLike>(message: T, opts: SignSyncOptions): SignatureHeaders {
+export function signatureHeadersSync<T extends RequestLike | ResponseLike>(
+  message: T,
+  opts: SignSyncOptions
+): SignatureHeaders {
   const { signer, components: _components, key: _key, ...params } = opts;
 
-  const components = _components ?? ('status' in message ? defaultResponseComponents : defaultRequestComponents);
-  const key = _key ?? 'sig1';
+  const components =
+    _components ??
+    ("status" in message
+      ? defaultResponseComponents
+      : defaultRequestComponents);
+  const key = _key ?? "sig1";
 
   const signParams: Parameters = {
     created: new Date(),
@@ -48,11 +79,17 @@ export function signatureHeadersSync<T extends RequestLike | ResponseLike>(messa
     ...(params as Parameters),
   };
 
-  const signatureInputString = buildSignatureInputString(components, signParams);
+  const signatureInputString = buildSignatureInputString(
+    components,
+    signParams
+  );
   const dataToSign = buildSignedData(message, components, signatureInputString);
 
   const signature = signer.signSync(dataToSign);
   const sigBase64 = base64Encode(signature);
 
-  return { 'Signature': `${key}=:${sigBase64}:`, 'Signature-Input': `${key}=${signatureInputString}` };
+  return {
+    Signature: `${key}=:${sigBase64}:`,
+    "Signature-Input": `${key}=${signatureInputString}`,
+  };
 }

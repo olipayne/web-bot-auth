@@ -31,9 +31,9 @@
     "typescript"
   ],
   "contributors": [
-      "Daniel Hensby",
-      "LTO Network",
-      "Thibault Meunier"
+    "Daniel Hensby",
+    "LTO Network",
+    "Thibault Meunier"
   ],
   "license": "Apache-2.0",
   "bugs": {

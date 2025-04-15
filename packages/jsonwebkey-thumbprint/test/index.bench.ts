@@ -1,33 +1,33 @@
-import { describe, bench } from 'vitest';
-import { jwkThumbprintPreCompute, jwkThumbprint } from '../src';
+import { describe, bench } from "vitest";
+import { jwkThumbprintPreCompute, jwkThumbprint } from "../src";
 
-const u8ToB64 = (u: Uint8Array) =>
-  btoa(String.fromCharCode(...u))
+const u8ToB64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
 
-const b64ToB64URL = (s: string) =>
-  s.replace(/\+/g, '-').replace(/\//g, '_')
+const b64ToB64URL = (s: string) => s.replace(/\+/g, "-").replace(/\//g, "_");
 
-const b64ToB64NoPadding = (s: string) =>
-  s.replace(/=/g, '')
+const b64ToB64NoPadding = (s: string) => s.replace(/=/g, "");
 
-const tests = [
-  { name: 'EC', },
-  { name: 'OKP' },
-  { name: 'RSA' },
-];
+const tests = [{ name: "EC" }, { name: "OKP" }, { name: "RSA" }];
 
 const randomKeys = async (num: number, alg: string) => {
   const values = new Array<JsonWebKey>();
   for (let i = 0; i < num; i++) {
     let keypair: CryptoKeyPair;
     switch (alg) {
-      case 'EC':
-        keypair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ['sign', 'verify']);
+      case "EC":
+        keypair = await crypto.subtle.generateKey(
+          { name: "ECDSA", namedCurve: "P-256" },
+          true,
+          ["sign", "verify"]
+        );
         break;
-      case 'OKP':
-        keypair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify'])
+      case "OKP":
+        keypair = await crypto.subtle.generateKey("Ed25519", true, [
+          "sign",
+          "verify",
+        ]);
         break;
-      case 'RSA':
+      case "RSA":
         keypair = await crypto.subtle.generateKey(
           {
             name: "RSA-PSS",
@@ -37,12 +37,15 @@ const randomKeys = async (num: number, alg: string) => {
           },
           true,
           ["sign", "verify"]
-        )
+        );
         break;
       default:
-        throw new Error('Unsupported key type');
+        throw new Error("Unsupported key type");
     }
-    const jwk = await crypto.subtle.exportKey('jwk', keypair.publicKey) as JsonWebKey;
+    const jwk = (await crypto.subtle.exportKey(
+      "jwk",
+      keypair.publicKey
+    )) as JsonWebKey;
     values.push(jwk);
   }
   return values;
@@ -54,21 +57,30 @@ async function setupBenchmarks() {
     const inputs = await randomKeys(1, name);
 
     describe(`Benchmark for ${name}`, () => {
-      bench(`${name} jwkThumbprintPreCompute`, () => {
-        for (const input of inputs) {
-          jwkThumbprintPreCompute(input);
-        }
-      }, { iterations: 1000 });
+      bench(
+        `${name} jwkThumbprintPreCompute`,
+        () => {
+          for (const input of inputs) {
+            jwkThumbprintPreCompute(input);
+          }
+        },
+        { iterations: 1000 }
+      );
     });
 
     describe(`Benchmark for ${name}`, () => {
-      const hash = (b: BufferSource) => crypto.subtle.digest('SHA-256', b);
-      const decode = (u: ArrayBuffer) => b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u))));
-      bench(`${name} jwkThumbprint`, () => {
-        for (const input of inputs) {
-          jwkThumbprint(input, hash, decode);
-        }
-      }, { iterations: 1000 });
+      const hash = (b: BufferSource) => crypto.subtle.digest("SHA-256", b);
+      const decode = (u: ArrayBuffer) =>
+        b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u))));
+      bench(
+        `${name} jwkThumbprint`,
+        () => {
+          for (const input of inputs) {
+            jwkThumbprint(input, hash, decode);
+          }
+        },
+        { iterations: 1000 }
+      );
     });
   }
 }

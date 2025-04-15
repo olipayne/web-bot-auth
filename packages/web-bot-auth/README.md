@@ -9,20 +9,21 @@ Web Bot Authentication defined by [draft-meunier-web-bot-auth-architecture](http
 
 ## Tables of Content
 
-* [Features](#features)
-* [Usage](#usage)
-* [Security Considerations](#security-considerations)
-* [License](#license)
+- [Features](#features)
+- [Usage](#usage)
+- [Security Considerations](#security-considerations)
+- [License](#license)
 
 ## Features
 
-* JWK Thumbprint pre-compute
-* JWK Thumbprint when passing a hash and encoding function
-* TypeScript types
+- JWK Thumbprint pre-compute
+- JWK Thumbprint when passing a hash and encoding function
+- TypeScript types
 
 ## Usage
 
 ```typescript
+
 ```
 
 ## Security Considerations

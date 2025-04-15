@@ -10,8 +10,8 @@
   "private": true,
   "scripts": {
     "build": "npm run build -w http-message-sig -w jsonwebkey-thumbprint -w web-bot-auth",
-    "format": "npm run lint -- --fix",
-    "lint": "eslint packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
+    "format": "prettier --write .",
+    "lint": "eslint examples/**/*.ts packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
     "test": "npm run test -w http-message-sig -- --run && npm run test -w jsonwebkey-thumbprint -- --run"
   },
   "license": "Apache-2.0",
@@ -20,6 +20,7 @@
     "@eslint/js": "^9.21.0",
     "eslint": "^9.21.0",
     "eslint-plugin-security": "^3.0.1",
+    "prettier": "^3.5.3",
     "tsup": "^8.4.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",

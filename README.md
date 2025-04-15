@@ -7,10 +7,10 @@ It implements all components required by Web Bot Authentication defined by [draf
 
 ## Tables of Content
 
-* [Examples](#examples)
-* [Development](#development)
-* [Security Considerations](#security-considerations)
-* [License](#license)
+- [Examples](#examples)
+- [Development](#development)
+- [Security Considerations](#security-considerations)
+- [License](#license)
 
 ## Examples
 
@@ -24,17 +24,16 @@ This deployment allows to test your implementation.
 2. It exposes a bot directory on [/.well-known/http-message-signatures-directory](https://http-message-signatures-example.research.cloudflare.com/.well-known/http-message-signatures-directory),
 3. It provides explanation about the protocol.
 
-
 ### Signing
 
 | Example                                            | Description                                  |
-|:---------------------------------------------------|:---------------------------------------------|
+| :------------------------------------------------- | :------------------------------------------- |
 | [Browser extension](./examples/browser-extension/) | Adds a `Signature` on every outgoing request |
 
 ### Verifying
 
 | Example                                                | Description                                            |
-|:-------------------------------------------------------|:-------------------------------------------------------|
+| :----------------------------------------------------- | :----------------------------------------------------- |
 | [Cloudflare Workers](./examples/verification-workers/) | Verify RFC 9421 `Signature` for every incoming request |
 | [Caddy Plugin](./examples/caddy-plugin/)               | Verify RFC 9421 `Signature` for every incoming request |
 
@@ -43,7 +42,7 @@ This deployment allows to test your implementation.
 This repository uses npm workspaces. There are 3 packages which it provides
 
 | Package                                                    | Description                                                                            |
-|:-----------------------------------------------------------|:---------------------------------------------------------------------------------------|
+| :--------------------------------------------------------- | :------------------------------------------------------------------------------------- |
 | [http-message-sig](./packages/http-message-sig/)           | HTTP Message Signatures as defined in RFC 9421                                         |
 | [jsonwebkey-thumbprint](./packages/jsonwebkey-thumbprint/) | JWK Thumbprint as defined in RFC 7638                                                  |
 | [web-bot-auth](./packages/web-bot-auth/)                   | HTTP Message Signatures for Bots as defined in draft-meunier-web-bot-auth-architecture |

@@ -11,23 +11,22 @@ Forked from [ltonetwork/http-message-signatures](https://github.com/ltonetwork/h
 
 ## Tables of Content
 
-* [Features](#features)
-* [Usage](#usage)
-* [Security Considerations](#security-considerations)
-* [License](#license)
+- [Features](#features)
+- [Usage](#usage)
+- [Security Considerations](#security-considerations)
+- [License](#license)
 
 ## Features
 
-* HTTP Message Signatures constructions
-* Signing synchoronously and asynchronously
-* Verifying synchronously and asynchronously
-* TypeScript types
+- HTTP Message Signatures constructions
+- Signing synchoronously and asynchronously
+- Verifying synchronously and asynchronously
+- TypeScript types
 
 ## Usage
 
 ```typescript
-import { sign, verify } from "http-message-sig"
-
+import { sign, verify } from "http-message-sig";
 ```
 
 ## Security Considerations

@@ -7,16 +7,16 @@ Chrome browser extension adding HTTP Message Signature on all outgoing requests 
 
 ## Tables of Content
 
-* [Features](#features)
-* [Usage](#usage)
-* [Security Considerations](#security-considerations)
-* [License](#license)
+- [Features](#features)
+- [Usage](#usage)
+- [Security Considerations](#security-considerations)
+- [License](#license)
 
 ## Features
 
-* Chrome Manifest v3 extension
-* RFC 9421 compatible `Signature` header
-* CRX extension server
+- Chrome Manifest v3 extension
+- RFC 9421 compatible `Signature` header
+- CRX extension server
 
 ## Usage
 
@@ -32,7 +32,7 @@ Then build, bundle, and sign the Chrome extension
 npm run bundle:chrome
 ```
 
-This extension requires an [entreprise policy](https://support.google.com/chrome/a/answer/187202?hl=en) to be configured on your Chrome. It requires that you configure your Chrome instance with a policy to force install the extension. 
+This extension requires an [entreprise policy](https://support.google.com/chrome/a/answer/187202?hl=en) to be configured on your Chrome. It requires that you configure your Chrome instance with a policy to force install the extension.
 
 In a distinct terminal, run `npm run start:config`. This ensures Chrome can install your extension.
 

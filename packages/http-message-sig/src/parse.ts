@@ -1,8 +1,11 @@
-import { Component, HeaderValue, Parameter, Parameters } from './types';
-import { decode as base64Decode } from './base64';
+import { Component, HeaderValue, Parameter, Parameters } from "./types";
+import { decode as base64Decode } from "./base64";
 
-function parseEntry(headerName: string, entry: string): [string, string | number | true | (string | number)[]] {
-  const [key, value] = entry.split('=');
+function parseEntry(
+  headerName: string,
+  entry: string
+): [string, string | number | true | (string | number)[]] {
+  const [key, value] = entry.split("=");
 
   if (value === undefined) return [key.trim(), true];
 
@@ -15,19 +18,23 @@ function parseEntry(headerName: string, entry: string): [string, string | number
       .split(/\s+/)
       .map((entry) => entry.match(/^"(.*)"$/)?.[1] ?? parseInt(entry));
 
-    if (arr.some((value) => typeof value === 'number' && isNaN(value))) {
-      throw new Error(`Invalid ${headerName} header. Invalid value ${key}=${value}`);
+    if (arr.some((value) => typeof value === "number" && isNaN(value))) {
+      throw new Error(
+        `Invalid ${headerName} header. Invalid value ${key}=${value}`
+      );
     }
 
     return [key.trim(), arr];
   }
 
-  throw new Error(`Invalid ${headerName} header. Invalid value ${key}=${value}`);
+  throw new Error(
+    `Invalid ${headerName} header. Invalid value ${key}=${value}`
+  );
 }
 
 function parseParametersHeader(
   name: string,
-  header: HeaderValue,
+  header: HeaderValue
 ): { key: string; components: Component[]; parameters: Parameters } {
   const entries = header
     .toString()
@@ -36,17 +43,27 @@ function parseParametersHeader(
 
   if (!entries) throw new Error(`Invalid ${name} header. Invalid value`);
 
-  const componentsIndex = entries.findIndex(([, value]) => Array.isArray(value));
-  if (componentsIndex === -1) throw new Error(`Invalid ${name} header. Missing components`);
-  const [[key, components]] = entries.splice(componentsIndex, 1) as [[string, Component[]]];
+  const componentsIndex = entries.findIndex(([, value]) =>
+    Array.isArray(value)
+  );
+  if (componentsIndex === -1)
+    throw new Error(`Invalid ${name} header. Missing components`);
+  const [[key, components]] = entries.splice(componentsIndex, 1) as [
+    [string, Component[]],
+  ];
 
   if (entries.some(([, value]) => Array.isArray(value))) {
     throw new Error(`Multiple signatures is not supported`);
   }
 
-  const parameters = Object.fromEntries(entries) as Record<Parameter, string | number | Date>;
-  if (typeof parameters.created === 'number') parameters.created = new Date(parameters.created * 1000);
-  if (typeof parameters.expires === 'number') parameters.expires = new Date(parameters.expires * 1000);
+  const parameters = Object.fromEntries(entries) as Record<
+    Parameter,
+    string | number | Date
+  >;
+  if (typeof parameters.created === "number")
+    parameters.created = new Date(parameters.created * 1000);
+  if (typeof parameters.expires === "number")
+    parameters.expires = new Date(parameters.expires * 1000);
 
   return { key, components, parameters };
 }
@@ -56,7 +73,7 @@ export function parseSignatureInputHeader(header: HeaderValue): {
   components: Component[];
   parameters: Parameters;
 } {
-  return parseParametersHeader('Signature-Input', header);
+  return parseParametersHeader("Signature-Input", header);
 }
 
 export function parseAcceptSignatureHeader(header: HeaderValue): {
@@ -64,15 +81,20 @@ export function parseAcceptSignatureHeader(header: HeaderValue): {
   components: Component[];
   parameters: Parameters;
 } {
-  return parseParametersHeader('Accept-Signature', header);
+  return parseParametersHeader("Accept-Signature", header);
 }
 
 export function parseSignatureHeader(key, header: HeaderValue): Uint8Array {
-  const signatureMatch = header.toString().match(/^([\w-]+)=:([A-Za-z0-9+/=]+):$/);
-  if (!signatureMatch) throw new Error('Invalid Signature header');
+  const signatureMatch = header
+    .toString()
+    .match(/^([\w-]+)=:([A-Za-z0-9+/=]+):$/);
+  if (!signatureMatch) throw new Error("Invalid Signature header");
 
   const [, signatureKey, signature] = signatureMatch;
-  if (signatureKey !== key) throw new Error(`Invalid Signature header. Key mismatch ${signatureKey} !== ${key}`);
+  if (signatureKey !== key)
+    throw new Error(
+      `Invalid Signature header. Key mismatch ${signatureKey} !== ${key}`
+    );
 
   return base64Decode(signature);
 }

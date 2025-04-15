@@ -9,42 +9,43 @@ Variable-Length Integer Encoding defined by [RFC 7638](https://www.rfc-editor.or
 
 ## Tables of Content
 
-* [Features](#features)
-* [Usage](#usage)
-* [Security Considerations](#security-considerations)
-* [License](#license)
+- [Features](#features)
+- [Usage](#usage)
+- [Security Considerations](#security-considerations)
+- [License](#license)
 
 ## Features
 
-* JWK Thumbprint pre-compute
-* JWK Thumbprint when passing a hash and encoding function
-* TypeScript types
+- JWK Thumbprint pre-compute
+- JWK Thumbprint when passing a hash and encoding function
+- TypeScript types
 
 ## Usage
 
 ```typescript
-import { jwkThumbprint } from "jsonwebkey-thumbprint"
+import { jwkThumbprint } from "jsonwebkey-thumbprint";
 
 // A public key exported as a JWK
-const keypair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify'])
-const jwk = await crypto.subtle.exportKey('jwk', keypair.publicKey)
+const keypair = await crypto.subtle.generateKey("Ed25519", true, [
+  "sign",
+  "verify",
+]);
+const jwk = await crypto.subtle.exportKey("jwk", keypair.publicKey);
 
 // Using sha-256 as a hash function and base64url as encoding
-const hash = (b: BufferSource) => crypto.subtle.digest('SHA-256', b);
-const decode = (u: ArrayBuffer) => b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u))))
+const hash = (b: BufferSource) => crypto.subtle.digest("SHA-256", b);
+const decode = (u: ArrayBuffer) =>
+  b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u))));
 
 // Compute the JWK Thumbprint for the public key
-console.log(await jwkThumbprint(jwk))
+console.log(await jwkThumbprint(jwk));
 
 // Helper functions
-const u8ToB64 = (u: Uint8Array) =>
-  btoa(String.fromCharCode(...u))
+const u8ToB64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
 
-const b64ToB64URL = (s: string) =>
-  s.replace(/\+/g, '-').replace(/\//g, '_')
+const b64ToB64URL = (s: string) => s.replace(/\+/g, "-").replace(/\//g, "_");
 
-const b64ToB64NoPadding = (s: string) =>
-  s.replace(/=/g, '')
+const b64ToB64NoPadding = (s: string) => s.replace(/=/g, "");
 ```
 
 ## Security Considerations

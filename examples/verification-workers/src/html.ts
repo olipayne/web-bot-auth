@@ -194,12 +194,12 @@ footer {
 </style>
 </head>
 <body>
-  <header id="top" ${status !== undefined ? `class="${status ? 'success' : 'failure'}"` : '' }>
+  <header id="top" ${status !== undefined ? `class="${status ? "success" : "failure"}"` : ""}>
     <h1>HTTP Message Signatures</h1>
     <h3>
-    ${status === undefined ? 'Your browser does not support HTTP Message Signatures' : ''}
-    ${status === false ? 'The Signature you sent does not validate against test public key' : ''}
-    ${status === true ? 'You successfully authenticated as owning the test public key' : ''}
+    ${status === undefined ? "Your browser does not support HTTP Message Signatures" : ""}
+    ${status === false ? "The Signature you sent does not validate against test public key" : ""}
+    ${status === true ? "You successfully authenticated as owning the test public key" : ""}
     </h3>
   </header>
   <section>
@@ -256,8 +256,8 @@ footer {
     </p>
   </section>
 </body>
-</html>`
+</html>`;
 
-export const neutralHTML = generateHTML()
-export const invalidHTML = generateHTML(false)
-export const validHTML = generateHTML(true)
+export const neutralHTML = generateHTML();
+export const invalidHTML = generateHTML(false);
+export const validHTML = generateHTML(true);

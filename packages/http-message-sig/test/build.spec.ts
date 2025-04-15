@@ -1,232 +1,258 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 
-import { Component, Parameters, RequestLike } from '../src';
-import { buildSignatureInputString, buildSignedData, extractComponent, extractHeader, getUrl } from '../src/build';
+import { Component, Parameters, RequestLike } from "../src";
+import {
+  buildSignatureInputString,
+  buildSignedData,
+  extractComponent,
+  extractHeader,
+  getUrl,
+} from "../src/build";
 
-describe('build', () => {
-  describe('extractHeader', () => {
+describe("build", () => {
+  describe("extractHeader", () => {
     const headers = {
-      testheader: 'test',
-      'test-header-1': 'test1',
-      'Test-Header-2': 'test2',
-      'test-Header-3': 'test3',
-      'TEST-HEADER-4': 'test4',
+      testheader: "test",
+      "test-header-1": "test1",
+      "Test-Header-2": "test2",
+      "test-Header-3": "test3",
+      "TEST-HEADER-4": "test4",
     };
 
     Object.entries(headers).forEach(([headerName, expectedValue]) => {
       it(`successfully extracts a matching header (${headerName})`, () => {
-        expect(extractHeader({ headers } as unknown as RequestLike, headerName)).to.equal(expectedValue);
+        expect(
+          extractHeader({ headers } as unknown as RequestLike, headerName)
+        ).to.equal(expectedValue);
       });
       it(`successfully extracts a lower cased header (${headerName})`, () => {
-        expect(extractHeader({ headers } as unknown as RequestLike, headerName.toLowerCase())).to.equal(expectedValue);
+        expect(
+          extractHeader(
+            { headers } as unknown as RequestLike,
+            headerName.toLowerCase()
+          )
+        ).to.equal(expectedValue);
       });
       it(`successfully extracts an upper cased header (${headerName})`, () => {
-        expect(extractHeader({ headers } as unknown as RequestLike, headerName.toUpperCase())).to.equal(expectedValue);
+        expect(
+          extractHeader(
+            { headers } as unknown as RequestLike,
+            headerName.toUpperCase()
+          )
+        ).to.equal(expectedValue);
       });
     });
 
-    it('returns an empty string for a missing header', () => {
-      expect(extractHeader({ headers } as unknown as RequestLike, 'missing')).to.equal('');
+    it("returns an empty string for a missing header", () => {
+      expect(
+        extractHeader({ headers } as unknown as RequestLike, "missing")
+      ).to.equal("");
     });
   });
 
-  describe('extractComponent', () => {
-    it('correctly extracts the @method', () => {
+  describe("extractComponent", () => {
+    it("correctly extracts the @method", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value',
+          method: "POST",
+          url: "https://www.example.com/path?param=value",
         } as unknown as RequestLike,
-        '@method',
+        "@method"
       );
-      expect(result).to.equal('POST');
+      expect(result).to.equal("POST");
     });
 
-    it('correctly extracts the @target-uri', () => {
+    it("correctly extracts the @target-uri", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value',
+          method: "POST",
+          url: "https://www.example.com/path?param=value",
         } as unknown as RequestLike,
-        '@target-uri',
+        "@target-uri"
       );
-      expect(result).to.equal('https://www.example.com/path?param=value');
+      expect(result).to.equal("https://www.example.com/path?param=value");
     });
 
-    it('correctly extracts the @authority', () => {
+    it("correctly extracts the @authority", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value',
+          method: "POST",
+          url: "https://www.example.com/path?param=value",
         } as unknown as RequestLike,
-        '@authority',
+        "@authority"
       );
-      expect(result).to.equal('www.example.com');
+      expect(result).to.equal("www.example.com");
     });
 
-    it('correctly extracts the @scheme', () => {
+    it("correctly extracts the @scheme", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'http://www.example.com/path?param=value',
+          method: "POST",
+          url: "http://www.example.com/path?param=value",
         } as unknown as RequestLike,
-        '@scheme',
+        "@scheme"
       );
-      expect(result).to.equal('http');
+      expect(result).to.equal("http");
     });
 
-    it('correctly extracts the @request-target', () => {
+    it("correctly extracts the @request-target", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value',
+          method: "POST",
+          url: "https://www.example.com/path?param=value",
         } as unknown as RequestLike,
-        '@request-target',
+        "@request-target"
       );
-      expect(result).to.equal('/path?param=value');
+      expect(result).to.equal("/path?param=value");
     });
 
-    it('correctly extracts the @path', () => {
+    it("correctly extracts the @path", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value',
+          method: "POST",
+          url: "https://www.example.com/path?param=value",
         } as unknown as RequestLike,
-        '@path',
+        "@path"
       );
-      expect(result).to.equal('/path');
+      expect(result).to.equal("/path");
     });
 
-    it('correctly extracts the @query', () => {
+    it("correctly extracts the @query", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value&foo=bar&baz=batman',
+          method: "POST",
+          url: "https://www.example.com/path?param=value&foo=bar&baz=batman",
         } as unknown as RequestLike,
-        '@query',
+        "@query"
       );
-      expect(result).to.equal('?param=value&foo=bar&baz=batman');
+      expect(result).to.equal("?param=value&foo=bar&baz=batman");
     });
 
-    it('correctly extracts the @query string', () => {
+    it("correctly extracts the @query string", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?queryString',
+          method: "POST",
+          url: "https://www.example.com/path?queryString",
         } as unknown as RequestLike,
-        '@query',
+        "@query"
       );
-      expect(result).to.equal('?queryString');
+      expect(result).to.equal("?queryString");
     });
 
-    it.skip('correctly extracts the @query-params', () => {
+    it.skip("correctly extracts the @query-params", () => {
       const result = extractComponent(
         {
-          method: 'POST',
-          url: 'https://www.example.com/path?param=value&foo=bar&baz=batman&qux=',
+          method: "POST",
+          url: "https://www.example.com/path?param=value&foo=bar&baz=batman&qux=",
         } as unknown as RequestLike,
-        '@query-params',
+        "@query-params"
       );
-      expect(result).to.equal('');
+      expect(result).to.equal("");
     });
   });
 
-  describe('buildSignatureInputString', () => {
-    describe('specification test cases', () => {
-      it('constructs minimal example', () => {
+  describe("buildSignatureInputString", () => {
+    describe("specification test cases", () => {
+      it("constructs minimal example", () => {
         const components: Component[] = [];
         const parameters: Parameters = {
           created: new Date(1618884475000),
-          keyid: 'test-key-rsa-pss',
-          alg: 'rsa-pss-sha512',
-        };
-        const inputString = buildSignatureInputString(components, parameters);
-        expect(inputString).to.equal('();created=1618884475;keyid="test-key-rsa-pss";alg="rsa-pss-sha512"');
-      });
-      it('constructs selective example', () => {
-        const components: Component[] = ['@authority', 'Content-Type'];
-        const parameters: Parameters = {
-          created: new Date(1618884475000),
-          keyid: 'test-key-rsa-pss',
-        };
-        const inputString = buildSignatureInputString(components, parameters);
-        expect(inputString).to.equal('("@authority" "content-type");created=1618884475;keyid="test-key-rsa-pss"');
-      });
-      it('constructs full example', () => {
-        const components: Component[] = [
-          'Date',
-          '@method',
-          '@path',
-          '@query',
-          '@authority',
-          'Content-Type',
-          'Digest',
-          'Content-Length',
-        ];
-        const parameters: Parameters = {
-          created: new Date(1618884475000),
-          keyid: 'test-key-rsa-pss',
+          keyid: "test-key-rsa-pss",
+          alg: "rsa-pss-sha512",
         };
         const inputString = buildSignatureInputString(components, parameters);
         expect(inputString).to.equal(
-          '("date" "@method" "@path" "@query" "@authority" "content-type" "digest" "content-length");created=1618884475;keyid="test-key-rsa-pss"',
+          '();created=1618884475;keyid="test-key-rsa-pss";alg="rsa-pss-sha512"'
+        );
+      });
+      it("constructs selective example", () => {
+        const components: Component[] = ["@authority", "Content-Type"];
+        const parameters: Parameters = {
+          created: new Date(1618884475000),
+          keyid: "test-key-rsa-pss",
+        };
+        const inputString = buildSignatureInputString(components, parameters);
+        expect(inputString).to.equal(
+          '("@authority" "content-type");created=1618884475;keyid="test-key-rsa-pss"'
+        );
+      });
+      it("constructs full example", () => {
+        const components: Component[] = [
+          "Date",
+          "@method",
+          "@path",
+          "@query",
+          "@authority",
+          "Content-Type",
+          "Digest",
+          "Content-Length",
+        ];
+        const parameters: Parameters = {
+          created: new Date(1618884475000),
+          keyid: "test-key-rsa-pss",
+        };
+        const inputString = buildSignatureInputString(components, parameters);
+        expect(inputString).to.equal(
+          '("date" "@method" "@path" "@query" "@authority" "content-type" "digest" "content-length");created=1618884475;keyid="test-key-rsa-pss"'
         );
       });
     });
   });
 
-  describe('buildSignedData', () => {
+  describe("buildSignedData", () => {
     const testRequest: RequestLike = {
-      method: 'POST',
-      url: 'https://example.com/foo?param=value&pet=dog',
+      method: "POST",
+      url: "https://example.com/foo?param=value&pet=dog",
       headers: {
-        Host: 'example.com',
-        Date: 'Tue, 20 Apr 2021 02:07:55 GMT',
-        'Content-Type': 'application/json',
-        Digest: 'SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=',
-        'Content-Length': '18',
+        Host: "example.com",
+        Date: "Tue, 20 Apr 2021 02:07:55 GMT",
+        "Content-Type": "application/json",
+        Digest: "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=",
+        "Content-Length": "18",
       },
     };
 
-    it('constructs minimal example', () => {
+    it("constructs minimal example", () => {
       const components: Component[] = [];
       const data = buildSignedData(
         testRequest,
         components,
-        '();created=1618884475;keyid="test-key-rsa-pss";alg="rsa-pss-sha512"',
+        '();created=1618884475;keyid="test-key-rsa-pss";alg="rsa-pss-sha512"'
       );
-      expect(data).to.equal('"@signature-params": ();created=1618884475;keyid="test-key-rsa-pss";alg="rsa-pss-sha512"');
+      expect(data).to.equal(
+        '"@signature-params": ();created=1618884475;keyid="test-key-rsa-pss";alg="rsa-pss-sha512"'
+      );
     });
 
-    it('constructs selective example', () => {
-      const components: Component[] = ['@authority', 'Content-Type'];
+    it("constructs selective example", () => {
+      const components: Component[] = ["@authority", "Content-Type"];
       const data = buildSignedData(
         testRequest,
         components,
-        '("@authority" "content-type");created=1618884475;keyid="test-key-rsa-pss"',
+        '("@authority" "content-type");created=1618884475;keyid="test-key-rsa-pss"'
       );
       expect(data).to.equal(
         '"@authority": example.com\n' +
           '"content-type": application/json\n' +
-          '"@signature-params": ("@authority" "content-type");created=1618884475;keyid="test-key-rsa-pss"',
+          '"@signature-params": ("@authority" "content-type");created=1618884475;keyid="test-key-rsa-pss"'
       );
     });
 
-    it('constructs full example', () => {
+    it("constructs full example", () => {
       const components: Component[] = [
-        'Date',
-        '@method',
-        '@path',
-        '@query',
-        '@authority',
-        'Content-Type',
-        'Digest',
-        'Content-Length',
+        "Date",
+        "@method",
+        "@path",
+        "@query",
+        "@authority",
+        "Content-Type",
+        "Digest",
+        "Content-Length",
       ];
       const data = buildSignedData(
         testRequest,
         components,
-        '("date" "@method" "@path" "@query" "@authority" "content-type" "digest" "content-length");created=1618884475;keyid="test-key-rsa-pss"',
+        '("date" "@method" "@path" "@query" "@authority" "content-type" "digest" "content-length");created=1618884475;keyid="test-key-rsa-pss"'
       );
       expect(data).to.equal(
         '"date": Tue, 20 Apr 2021 02:07:55 GMT\n' +
@@ -239,28 +265,30 @@ describe('build', () => {
           '"content-length": 18\n' +
           '"@signature-params": ("date" "@method" "@path" "@query" ' +
           '"@authority" "content-type" "digest" "content-length")' +
-          ';created=1618884475;keyid="test-key-rsa-pss"',
+          ';created=1618884475;keyid="test-key-rsa-pss"'
       );
     });
   });
 
-  describe('getUrl', () => {
-    it('should correctly construct a full URL from a RequestLike object with protocol and host', () => {
+  describe("getUrl", () => {
+    it("should correctly construct a full URL from a RequestLike object with protocol and host", () => {
       const message: RequestLike = {
-        method: 'GET',
-        url: '/path',
-        protocol: 'https',
+        method: "GET",
+        url: "/path",
+        protocol: "https",
         headers: {
-          host: 'www.example.com',
+          host: "www.example.com",
         },
       };
-      const result = getUrl(message, '@target-uri');
-      expect(result.toString()).to.equal('https://www.example.com/path');
+      const result = getUrl(message, "@target-uri");
+      expect(result.toString()).to.equal("https://www.example.com/path");
     });
 
-    it('should throw an error if the message does not contain a URL', () => {
+    it("should throw an error if the message does not contain a URL", () => {
       const message = {} as RequestLike;
-      expect(() => getUrl(message, '@target-uri')).to.throw('@target-uri is only valid for requests');
+      expect(() => getUrl(message, "@target-uri")).to.throw(
+        "@target-uri is only valid for requests"
+      );
     });
   });
 });
