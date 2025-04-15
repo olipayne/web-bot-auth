@@ -224,8 +224,10 @@ footer {
       <pre>{
   "keys": [
     {
-      "alg": "ed25519",
-      "key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAJrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs=\n-----END PUBLIC KEY-----",
+      "kid":"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+      "kty":"OKP",
+      "crv":"Ed25519",
+      "x":"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs",
       "nbf": 1743465600000
     }
   ],
@@ -237,16 +239,15 @@ footer {
       Parameters are defined as follow:
 
       <ul>
-        <li><strong>keys</strong>: an array of serialised public key
+        <li><strong>keys</strong>: an array of serialised JSON Web Key defined by <a href="https://www.rfc-editor.org/rfc/rfc7517.html">RFC 7517</a>
           <ul style="padding-left:1em">
-          <li><strong>alg</strong>: algorithm name as registered with IANA registry HTTP Message Signature</li>
+          <li><strong>kid</strong>: JWK Thumbprint as defined in <a href="https://www.rfc-editor.org/rfc/rfc7638.html">RFC 7638</a></li>
           <li><strong>key</strong>: PEM encoded public key. (Thibault: should be discard —BEGIN and —END?)</li>
-          <li><strong>not-before</strong>: start of the validity of the public key as a unix timestamp in milliseconds.</li>
-          <li><strong>not-after</strong>: end of the validity of the public key as a unix timestamp in milliseconds.</li>
+          <li><strong>nbf</strong>: start of the validity of the public key as a unix timestamp in milliseconds defined by <a href="https://www.rfc-editor.org/rfc/rfc7519.html">RFC 7519</a></li>
+          <li><strong>exp</strong>: end of the validity of the public key as a unix timestamp in milliseconds defined by <a href="https://www.rfc-editor.org/rfc/rfc7519.html">RFC 7519</a></li>
           </ul>
         </li>
-        <li><strong>user_agent</strong>: HTTP header “User-Agent” value for each signed request.</li>
-        <li><strong>purpose</strong>: represents what a signature means. Examples could be aipref draft from Martin Thomson.</li>
+        <li><strong>purpose</strong>: represents what a signature means. Examples could be the draft for <a href="https://github.com/martinthomson/sup-ai">Short usage preference proposed</a>.</li>
       </ul>
     </p>
 
