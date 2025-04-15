@@ -1,28 +1,19 @@
-import { signSync } from 'http-message-signatures';
+import { Algorithm, signatureHeadersSync, helpers, jwkToKeyID } from 'web-bot-auth';
 import _sodium from 'libsodium-wrappers'
-import jwk from '../../tests/rfc9421-keys/ed25519.json' assert { type: 'json' }
+import jwk from '../../rfc9421-keys/ed25519.json' assert { type: 'json' }
 
-// THIS SHOULD BE DETERMINISTIC AND BASED ON THE KEY MATERIAL
-const KEY_ID = 'test-key-ed25519';
-const IDENTIFIERS = ['@authority'];
+// THIS IS DETERMINISTIC AND BASED ON THE KEY MATERIAL
+let KEY_ID = 'not-set-yet';
+jwkToKeyID(jwk, helpers.WEBCRYPTO_SHA256, helpers.BASE64URL_DECODE).then(kid => KEY_ID = kid)
+
 const MAX_AGE_IN_MS = 1000 * 60 * 60; // 1 hour
 
 class Ed25519Signer {
-  public alg = 'ed25519';
+  public alg: Algorithm = 'ed25519';
+  public keyid: string
+  private privateKey: Uint8Array<ArrayBuffer>
 
-  constructor(public keyid: string, private privateKey: Uint8Array<ArrayBuffer>) {
-  }
-
-  signSync(data: string): Uint8Array {
-    const sodium = _sodium;
-    const message = sodium.from_string(data);
-    const signedMessage = sodium.crypto_sign(message, this.privateKey);
-    return signedMessage.slice(0, sodium.crypto_sign_BYTES);
-  }
-}
-
-chrome.webRequest.onBeforeSendHeaders.addListener(
-  function (details) {
+  constructor(public jwk: JsonWebKey) {
     const sodium = _sodium
 
     // Base64URL decode helper
@@ -38,23 +29,34 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     fullSecretKey.set(privateKey);
     fullSecretKey.set(publicKey, 32);
 
+    this.privateKey = fullSecretKey;
+
+    // NOTE: this MUST be computed from the public key bytes. It just so happen Chrome does not easily allow to perform a sha256 synchronously
+    this.keyid = KEY_ID
+  }
+
+  signSync(data: string): Uint8Array {
+    const sodium = _sodium;
+    const message = sodium.from_string(data);
+    const signedMessage = sodium.crypto_sign(message, this.privateKey);
+    return signedMessage.slice(0, sodium.crypto_sign_BYTES);
+  }
+}
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  function (details) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     const request = new Request(details.url, { method: details.method, headers: details.requestHeaders?.map(h => [h.name, h.value!])! });
-    const withSignature = signSync(request, {
-      components: IDENTIFIERS,
-      signer: new Ed25519Signer(KEY_ID, fullSecretKey),
-      created: new Date(Date.now()), // TODO: use details.timestamp
-      nonce: Math.floor(Math.random() * 1_000_000).toFixed(0),
-      expires: new Date(Date.now() + MAX_AGE_IN_MS),
-    });
+    const now = new Date();
+    const headers = signatureHeadersSync(request, new Ed25519Signer(jwk), { created: now, expires: new Date(now.getTime() + MAX_AGE_IN_MS) });
 
     details.requestHeaders?.push({
       name: 'Signature',
-      value: withSignature.signatureHeader,
+      value: headers['Signature'],
     });
     details.requestHeaders?.push({
       name: 'Signature-Input',
-      value: withSignature.inputHeader,
+      value: headers['Signature-Input'],
     });
 
     return { requestHeaders: details.requestHeaders };

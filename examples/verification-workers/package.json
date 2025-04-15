@@ -16,6 +16,6 @@
 		"wrangler": "^4.7.2"
 	},
 	"dependencies": {
-		"http-message-signatures": "file:vendor/http-message-signatures-0.0.0.tgz"
+    	"web-bot-auth": "^0.0.3"
 	}
 }

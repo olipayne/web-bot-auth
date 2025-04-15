@@ -98,5 +98,5 @@ export interface SignatureHeaders {
 };
 
 export interface Directory {
-  keys: JsonWebKey
+  keys: JsonWebKey[]
 }
