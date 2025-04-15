@@ -3,7 +3,7 @@ const generateHTML = (status?: boolean) => `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HTTP Message Signatures</title>
+  <title>Identify Bots with HTTP Message Signatures</title>
   <style>* {
   margin: 0;
   padding: 0;
@@ -195,7 +195,7 @@ footer {
 </head>
 <body>
   <header id="top" ${status !== undefined ? `class="${status ? "success" : "failure"}"` : ""}>
-    <h1>HTTP Message Signatures</h1>
+    <h1>Identify Bots with HTTP Message Signatures</h1>
     <h3>
     ${status === undefined ? "Your browser does not support HTTP Message Signatures" : ""}
     ${status === false ? "The Signature you sent does not validate against test public key" : ""}
@@ -207,7 +207,7 @@ footer {
       HTTP Message Signatures are a mechanism to create, encode, and verify signatures over components of an HTTP message.
       They are standardised by the IETF in <a href="https://datatracker.ietf.org/doc/html/rfc9421">RFC 9421</a>.
 
-      This website validates the presence of such signature.
+      This website validates the presence of such signature as defined in <a href="https://github.com/thibmeu/http-message-signatures-directory">draft-meunier-web-bot-auth-architecture</a>.
     </p>
 
 		<h2>Overview</h2>
@@ -226,7 +226,7 @@ footer {
     {
       "alg": "ed25519",
       "key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAJrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs=\n-----END PUBLIC KEY-----",
-      "not-before": 1743465600000
+      "nbf": 1743465600000
     }
   ],
   "purpose": "rag"

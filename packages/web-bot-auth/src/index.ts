@@ -1,9 +1,9 @@
 import * as httpsig from "http-message-sig";
 export {
   HTTP_MESSAGE_SIGNATURES_DIRECTORY,
-  Algorithm,
+  type Algorithm,
   MediaType,
-  SignatureHeaders,
+  type SignatureHeaders,
 } from "http-message-sig";
 export { jwkThumbprint as jwkToKeyID } from "jsonwebkey-thumbprint";
 
