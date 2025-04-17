@@ -209,10 +209,19 @@ footer {
 
       This website validates the presence of such signature as defined in <a href="https://github.com/thibmeu/http-message-signatures-directory">draft-meunier-web-bot-auth-architecture</a>.
     </p>
-
-		<h2>Overview</h2>
     <p>
       This website checks for an Ed25519 signature on incoming request. They should be signed by a test public key defined in <a href="https://datatracker.ietf.org/doc/html/rfc9421#name-example-ed25519-test-key">Appendix B.1.4 of RFC 9421</a>.
+    </p>
+
+    <h2>Why do platforms and websites need this?</h2>
+    <p>
+      As a platform provider, I would like to ensure websites are able to identify requests originating from my service.
+      At the moment, I share IP ranges, but this is long to deploy, cumbersome to maintain, and costly, especially with the multiplication of services, and the need to localise outgoing traffic with a forward proxy.
+      It's even more pressing as I onboard multiple companies on my platform that need to have their own identity.
+      And user agent headers do not have any integrity protection.
+    </p>
+    <p>
+      It's time for websites to know who's calling, and for platforms to prove it.
     </p>
 
     <h2>How to retrieve the public key used by this website</h2>
