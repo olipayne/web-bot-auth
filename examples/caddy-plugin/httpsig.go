@@ -21,16 +21,9 @@ func init() {
 	)
 }
 
-type Key struct {
-	Alg       string `json:"alg"`
-	Key       string `json:"key"`
-	NotBefore *int64 `json:"not-before,omitempty"`
-	NotAfter  *int64 `json:"not-after,omitempty"`
-}
-
 type Directory struct {
-	Keys    []Key   `json:"keys"`
-	Purpose *string `json:"purpose,omitempty"`
+	Keys    []json.RawMessage `json:"keys"`
+	Purpose *string           `json:"purpose,omitempty"`
 }
 
 // Middleware struct to hold the configuration for the handler
@@ -62,7 +55,7 @@ func (m *Middleware) Provision(ctx caddy.Context) error {
 		return err
 	}
 
-	validator, err := NewValidator([]byte(dir.Keys[0].Key))
+	validator, err := NewValidator(dir.Keys[0])
 	if err != nil {
 		return err
 	}
