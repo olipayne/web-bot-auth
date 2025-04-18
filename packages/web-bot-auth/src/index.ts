@@ -7,8 +7,11 @@ export {
 } from "http-message-sig";
 export { jwkThumbprint as jwkToKeyID } from "jsonwebkey-thumbprint";
 
+import { b64ToB64URL, b64ToB64NoPadding, b64Tou8, u8ToB64 } from "./base64";
+
 export const HTTP_MESSAGE_SIGNAGURE_TAG = "web-bot-auth";
 export const REQUEST_COMPONENTS: httpsig.Component[] = ["@authority"];
+export const NONCE_LENGTH_IN_BYTES = 64;
 
 export interface SignatureParams {
   created: Date;
@@ -24,6 +27,20 @@ export interface VerificationParams {
   nonce?: string;
 }
 
+export function generateNonce(): string {
+  const nonceBytes = new Uint8Array(NONCE_LENGTH_IN_BYTES);
+  crypto.getRandomValues(nonceBytes);
+  return u8ToB64(nonceBytes);
+}
+
+export function validateNonce(nonce: string): boolean {
+  try {
+    return b64Tou8(nonce).length === NONCE_LENGTH_IN_BYTES;
+  } catch {
+    return false;
+  }
+}
+
 export function signatureHeaders<
   T extends httpsig.RequestLike | httpsig.ResponseLike,
 >(
@@ -34,13 +51,12 @@ export function signatureHeaders<
   if (params.created.getTime() > params.expires.getTime()) {
     throw new Error("created should happen before expires");
   }
+  // Nonce should be a base64 encoded 64-byte array. We should check it
   let nonce = params.nonce;
   if (!nonce) {
-    nonce = Math.floor(Math.random() * 4_294_967_295).toFixed(0);
+    nonce = generateNonce();
   } else {
-    try {
-      parseInt(nonce);
-    } catch {
+    if (!validateNonce(nonce)) {
       throw new Error("nonce is not a valid uint32");
     }
   }
@@ -67,11 +83,9 @@ export function signatureHeadersSync<
   }
   let nonce = params.nonce;
   if (!nonce) {
-    nonce = Math.floor(Math.random() * 4_294_967_295).toFixed(0);
+    nonce = generateNonce();
   } else {
-    try {
-      parseInt(nonce);
-    } catch {
+    if (!validateNonce(nonce)) {
       throw new Error("nonce is not a valid uint32");
     }
   }
@@ -134,10 +148,3 @@ export const helpers = {
   BASE64URL_DECODE: (u: ArrayBuffer) =>
     b64ToB64URL(b64ToB64NoPadding(u8ToB64(new Uint8Array(u)))),
 };
-
-// Helper functions
-const u8ToB64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
-
-const b64ToB64URL = (s: string) => s.replace(/\+/g, "-").replace(/\//g, "_");
-
-const b64ToB64NoPadding = (s: string) => s.replace(/=/g, "");
