@@ -12,7 +12,7 @@
     "build": "npm run build -w http-message-sig -w jsonwebkey-thumbprint -w web-bot-auth",
     "format": "prettier --write . && eslint examples/**/*.ts packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs --fix",
     "lint": "prettier . && eslint examples/**/*.ts packages/**/*.ts --ignore-pattern **/dist/** eslint.config.mjs",
-    "test": "npm run test -w http-message-sig -- --run && npm run test -w jsonwebkey-thumbprint -- --run && npm run test -w web-bot-auth -- --run"
+    "test": "npm run test -w http-message-sig -- --run && npm run test -w jsonwebkey-thumbprint -- --run && npm run test -w web-bot-auth -- --run && npm run test -w verification-workers -- --run"
   },
   "license": "Apache-2.0",
   "version": "0.0.0",
