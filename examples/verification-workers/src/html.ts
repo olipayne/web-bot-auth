@@ -267,7 +267,7 @@ footer {
 
     <h2>I have comments and want to contribute. Where do I go?</h2>
     <p>
-    First off, this is fantasatic news!
+    First off, this is fantastic news!
     </p>
     <p>
     To contribute to this website, you can go to <a href="https://github.com/cloudflareresearch/web-bot-auth">cloudflareresearch/web-bot-auth</a>.
