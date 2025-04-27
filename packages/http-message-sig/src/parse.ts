@@ -5,9 +5,16 @@ function parseEntry(
   headerName: string,
   entry: string
 ): [string, string | number | true | (string | number)[]] {
-  const [key, value] = entry.split("=");
-
-  if (value === undefined) return [key.trim(), true];
+  // this is wrong. it should only split the first `=`
+  const equalsIndex = entry.indexOf("=");
+  if (equalsIndex === -1) {
+    return [entry.trim(), true];
+  }
+  const key = entry.slice(0, equalsIndex);
+  const value = entry.slice(equalsIndex + 1).trim();
+  if (key.length === 0) {
+    throw new Error(`Invalid ${headerName} header. Invalid value ${entry}`);
+  }
 
   if (value.match(/^".*"$/)) return [key.trim(), value.slice(1, -1)];
   if (value.match(/^\d+$/)) return [key.trim(), parseInt(value)];

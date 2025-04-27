@@ -25,6 +25,23 @@ describe("parse.ts", () => {
       });
     });
 
+    it("should parse a Signature-Input header with base64 encoded nonce", () => {
+      // SGVsbG8gd29ybGQ= is "Hello world" in base64
+      const header =
+        'sig1=("@authority");created=1618884475;expires=1618888075;nonce="SGVsbG8gd29ybGQ="';
+      const result = parseSignatureInputHeader(header);
+
+      expect(result).to.deep.equal({
+        key: "sig1",
+        components: ["@authority"],
+        parameters: {
+          created: new Date(1618884475 * 1000),
+          expires: new Date(1618888075 * 1000),
+          nonce: "SGVsbG8gd29ybGQ=",
+        },
+      });
+    });
+
     it("should throw an error on an invalid Signature-Input header", () => {
       const header =
         'sig1=("@method" "@path" "@authority" "digest");invalid=foo';
