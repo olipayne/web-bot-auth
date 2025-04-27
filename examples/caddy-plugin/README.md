@@ -16,9 +16,9 @@
 
 This is an example plugin and only supports Ed25519. You can find a test key in [Appendix B.1.4 of RFC 9421](https://datatracker.ietf.org/doc/html/rfc9421#name-example-ed25519-test-key).
 
-* `httpsig` configuration hook
-* Parse HTTP Message Signatures directory
-* Block request without a valid signature
+- `httpsig` configuration hook
+- Parse HTTP Message Signatures directory
+- Block request without a valid signature
 
 ## Usage
 

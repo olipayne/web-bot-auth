@@ -12,7 +12,7 @@ import worker from "../src/index";
 // `Request` to pass to `worker.fetch()`.
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
-const sampleURL = "https://example.com"
+const sampleURL = "https://example.com";
 
 describe("/ endpoint", () => {
 	it("responds with HTTP 200", async () => {
@@ -27,9 +27,11 @@ describe("/ endpoint", () => {
 describe("/debug endpoint", () => {
 	it("responds with request headers", async () => {
 		const headers = { test: "this is a test header" };
-		const request = new Request(`${sampleURL}/debug`, { headers })
+		const request = new Request(`${sampleURL}/debug`, { headers });
 		const response = await SELF.fetch(request);
-		const headersString = Object.entries(headers).map(([k, v]) => `${k}: ${v}`).join('\n')
+		const headersString = Object.entries(headers)
+			.map(([k, v]) => `${k}: ${v}`)
+			.join("\n");
 		expect(await response.text()).toMatch(headersString);
 	});
-})
+});
