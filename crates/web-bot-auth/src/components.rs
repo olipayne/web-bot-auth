@@ -5,7 +5,7 @@
 use super::ImplementationError;
 
 /// [Signature component parameters](https://www.rfc-editor.org/rfc/rfc9421#name-http-signature-component-pa) for HTTP fields.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub enum HTTPFieldParameters {
     /// Indicates whether this HTTP header was both a structured field value and should be strictly serialized in its
     /// signature base representation.
@@ -24,11 +24,11 @@ pub enum HTTPFieldParameters {
 
 /// A container that represents an ordered list of signature component fields. Order is significant during signing and
 /// verifying.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub struct HTTPFieldParametersSet(pub Vec<HTTPFieldParameters>);
 
 /// Represents an HTTP header, informally.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub struct HTTPField {
     /// Uniquely identified by name
     pub name: String,
@@ -233,7 +233,7 @@ impl TryFrom<HTTPField> for sfv::Item {
 
 /// [Signature component parameters](https://www.rfc-editor.org/rfc/rfc9421#name-http-signature-component-pa)
 /// specifically for the `@query-params` derived component.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub enum QueryParamParameters {
     /// Unique identifier for the query param
     Name(String),
@@ -244,7 +244,7 @@ pub enum QueryParamParameters {
 /// A list of derived components, used to specify attributes of an HTTP message that otherwise can't be referenced
 /// via an HTTP header but nevertheless can be used in generating a signature base. Each component here, with the sole
 /// exception of `QueryParameters`, accepts a single component parameter `req.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub enum DerivedComponent {
     /// Represents `@authority` derived component
     Authority {
@@ -295,7 +295,7 @@ pub enum DerivedComponent {
 
 /// A container that represents an ordered list of signature component fields. Order is significant during signing and
 /// verifying.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub struct QueryParamParametersSet(pub Vec<QueryParamParameters>);
 
 impl TryFrom<sfv::Parameters> for QueryParamParametersSet {
@@ -451,7 +451,7 @@ impl TryFrom<DerivedComponent> for sfv::Item {
 
 /// Represents *any* component that can be used during message signing or verifying. See documentation
 /// about each wrapped variant to learn more.
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub enum CoveredComponent {
     /// Represents an HTTP field that can be used as part of the `Signature-Input` field
     HTTP(HTTPField),
