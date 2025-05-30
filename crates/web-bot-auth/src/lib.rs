@@ -24,7 +24,7 @@ use sfv::SerializeValue;
 use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Write as _;
-use std::time::{Duration, SystemTime, SystemTimeError, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, SystemTimeError, UNIX_EPOCH};
 
 /// Errors that may be thrown by this module.
 #[derive(Debug)]
@@ -460,6 +460,15 @@ pub struct MessageVerifier {
     algorithm: Algorithm,
 }
 
+/// Micro-measurements of different parts of the process in a call to `verify()`.
+/// Useful for measuring overhead.
+pub struct SignatureTiming {
+    /// Time taken to generate a signature base,
+    pub generation: Duration,
+    /// Time taken to execute cryptographic verification.
+    pub verification: Duration,
+}
+
 impl MessageVerifier {
     /// Parse a message into a structure that is ready for verification against an
     /// external key with a suitable algorithm. If `alg` is not set, a default will
@@ -567,7 +576,8 @@ impl MessageVerifier {
     /// Verify the messsage, consuming the verifier in the process.
     /// If `key_id` is not supplied, a key ID to fetch the public key
     /// from `keyring` will be sourced from the `keyid` parameter
-    /// within the message.
+    /// within the message. Returns information about how long verification
+    /// took if successful.
     ///
     /// # Errors
     ///
@@ -576,7 +586,7 @@ impl MessageVerifier {
         self,
         keyring: &KeyRing,
         key_id: Option<Thumbprint>,
-    ) -> Result<(), ImplementationError> {
+    ) -> Result<SignatureTiming, ImplementationError> {
         let keying_material = (match key_id {
             Some(key) => keyring.get(&key),
             None => self
@@ -589,7 +599,9 @@ impl MessageVerifier {
                 .and_then(|key| keyring.get(key)),
         })
         .ok_or(ImplementationError::NoSuchKey)?;
+        let generation = Instant::now();
         let (base_representation, _) = self.parsed.base.into_ascii()?;
+        let generation = generation.elapsed();
         match self.algorithm {
             Algorithm::Ed25519 => {
                 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
@@ -599,9 +611,14 @@ impl MessageVerifier {
                 let sig = Signature::try_from(self.parsed.signature.as_slice())
                     .map_err(|_| ImplementationError::InvalidSignatureLength)?;
 
+                let verification = Instant::now();
                 verifying_key
                     .verify(base_representation.as_bytes(), &sig)
                     .map_err(|_| ImplementationError::FailedToVerify)
+                    .map(|()| SignatureTiming {
+                        generation,
+                        verification: verification.elapsed(),
+                    })
             }
         }
     }
@@ -697,7 +714,7 @@ impl WebBotAuthVerifier {
         keyring: &KeyRing,
         key_id: Option<Thumbprint>,
         enforce_key_directory_lookup: bool,
-    ) -> Result<(), ImplementationError> {
+    ) -> Result<SignatureTiming, ImplementationError> {
         if (!enforce_key_directory_lookup && self.key_directory.is_some())
             || self.key_directory.is_none()
         {
@@ -784,7 +801,9 @@ mod tests {
             public_key.to_vec(),
         )]);
         let verifier = MessageVerifier::parse(&test, None, |(_, _)| true).unwrap();
-        assert!(verifier.verify(&keyring, None).is_ok());
+        let timing = verifier.verify(&keyring, None).unwrap();
+        assert!(timing.generation.as_nanos() > 0);
+        assert!(timing.verification.as_nanos() > 0);
     }
 
     #[test]
@@ -802,7 +821,9 @@ mod tests {
         let verifier = WebBotAuthVerifier::parse(&test, None).unwrap();
         // Since the expiry date is in the past.
         assert!(verifier.possibly_insecure());
-        assert!(verifier.verify(&keyring, None, false).is_ok());
+        let timing = verifier.verify(&keyring, None, false).unwrap();
+        assert!(timing.generation.as_nanos() > 0);
+        assert!(timing.verification.as_nanos() > 0);
     }
 
     #[test]
@@ -892,7 +913,10 @@ mod tests {
 
         let verifier = WebBotAuthVerifier::parse(&mytest, None).unwrap();
         assert!(!verifier.possibly_insecure());
-        assert!(verifier.verify(&keyring, None, false).is_ok());
+
+        let timing = verifier.verify(&keyring, None, false).unwrap();
+        assert!(timing.generation.as_nanos() > 0);
+        assert!(timing.verification.as_nanos() > 0);
     }
 
     #[test]

@@ -43,6 +43,9 @@ impl TryFrom<sfv::Parameters> for HTTPFieldParametersSet {
     fn try_from(value: sfv::Parameters) -> Result<Self, Self::Error> {
         let mut output: Vec<HTTPFieldParameters> = vec![];
 
+        // we don't need `req_seen` or `tr_seen` because sfv merges duplicates into last one
+        let (mut bs_seen, mut sf_seen, mut key_seen) = (false, false, false);
+
         for (key, bare_item) in &value {
             match key.as_str() {
                 "sf" => {
@@ -53,7 +56,13 @@ impl TryFrom<sfv::Parameters> for HTTPFieldParametersSet {
                                 .into(),
                         ))?
                     {
+                        if bs_seen || key_seen {
+                            return Err(ImplementationError::ParsingError(
+                                "`bs`, `key` and `sf` parameter not simultaneously allowed".into(),
+                            ));
+                        }
                         output.push(HTTPFieldParameters::Sf);
+                        sf_seen = true;
                     }
                 }
                 "bs" => {
@@ -64,7 +73,13 @@ impl TryFrom<sfv::Parameters> for HTTPFieldParametersSet {
                                 .into(),
                         ))?
                     {
+                        if sf_seen || key_seen {
+                            return Err(ImplementationError::ParsingError(
+                                "`bs`, `key` and `sf` parameter not simultaneously allowed".into(),
+                            ));
+                        }
                         output.push(HTTPFieldParameters::Bs);
+                        bs_seen = true;
                     }
                 }
                 "tr" => {
@@ -90,6 +105,11 @@ impl TryFrom<sfv::Parameters> for HTTPFieldParametersSet {
                     }
                 }
                 "key" => {
+                    if sf_seen || bs_seen {
+                        return Err(ImplementationError::ParsingError(
+                            "`bs`, `key` and `sf` parameter not simultaneously allowed".into(),
+                        ));
+                    }
                     let name = bare_item
                         .as_string()
                         .ok_or(ImplementationError::ParsingError(
@@ -98,6 +118,7 @@ impl TryFrom<sfv::Parameters> for HTTPFieldParametersSet {
                         ))?
                         .as_str();
                     output.push(HTTPFieldParameters::Key(name.to_string()));
+                    key_seen = true;
                 }
                 parameter_name => {
                     return Err(ImplementationError::ParsingError(format!(
@@ -115,29 +136,74 @@ impl TryFrom<HTTPFieldParametersSet> for sfv::Parameters {
 
     fn try_from(value: HTTPFieldParametersSet) -> Result<Self, Self::Error> {
         let mut parameters = sfv::Parameters::new();
+
+        // Test for duplicates
+        let (mut req_set, mut bs_set, mut sf_set, mut key_set, mut tr_set) =
+            (false, false, false, false, false);
+
         for param in &value.0 {
             match param {
                 HTTPFieldParameters::Sf => {
+                    if sf_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`sf` parameter not allowed as duplicate".into(),
+                        ));
+                    }
+                    if bs_set || key_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`bs`, `key` and `sf` parameter not simultaneously allowed".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("sf").to_owned();
                     parameters.insert(key, sfv::BareItem::Boolean(true));
+                    sf_set = true;
                 }
                 HTTPFieldParameters::Bs => {
+                    if bs_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`bs` parameter not allowed as duplicate".into(),
+                        ));
+                    }
+                    if sf_set || key_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`bs`, `key` and `sf` parameter not simultaneously allowed".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("bs").to_owned();
                     parameters.insert(key, sfv::BareItem::Boolean(true));
+                    bs_set = true;
                 }
                 HTTPFieldParameters::Tr => {
+                    if tr_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`tr` parameter not allowed as duplicate".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("tr").to_owned();
                     parameters.insert(key, sfv::BareItem::Boolean(true));
+                    tr_set = true;
                 }
                 HTTPFieldParameters::Req => {
+                    if req_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`tr` parameter not allowed as duplicate".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("req").to_owned();
                     parameters.insert(key, sfv::BareItem::Boolean(true));
+                    req_set = true;
                 }
                 HTTPFieldParameters::Key(name) => {
+                    if key_set {
+                        return Err(ImplementationError::ParsingError(
+                            "`key` parameter not allowed as duplicate".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("key").to_owned();
                     let value = sfv::String::from_string(name.clone())
                         .map_err(|(e, _)| ImplementationError::ImpossibleSfvError(e))?;
                     parameters.insert(key, sfv::BareItem::String(value));
+                    key_set = true;
                 }
             }
         }
@@ -238,6 +304,8 @@ impl TryFrom<sfv::Parameters> for QueryParamParametersSet {
     fn try_from(value: sfv::Parameters) -> Result<Self, Self::Error> {
         let mut output: Vec<QueryParamParameters> = vec![];
 
+        let (mut req_seen, mut name_seen) = (false, false);
+
         for (key, bare_item) in &value {
             match key.as_str() {
                 "req" => {
@@ -248,7 +316,13 @@ impl TryFrom<sfv::Parameters> for QueryParamParametersSet {
                                 .into(),
                         ))?
                     {
+                        if req_seen {
+                            return Err(ImplementationError::ParsingError(
+                                "`req` parameter not allowed as duplicate".into(),
+                            ));
+                        }
                         output.push(QueryParamParameters::Req);
+                        req_seen = true;
                     }
                 }
                 "name" => {
@@ -259,7 +333,13 @@ impl TryFrom<sfv::Parameters> for QueryParamParametersSet {
                                 .into(),
                         ))?
                         .as_str();
+                    if name_seen {
+                        return Err(ImplementationError::ParsingError(
+                            "`name` parameter not allowed as duplicate".into(),
+                        ));
+                    }
                     output.push(QueryParamParameters::Name(name.to_string()));
+                    name_seen = true;
                 }
                 parameter_name => {
                     return Err(ImplementationError::ParsingError(format!(
@@ -277,13 +357,25 @@ impl TryFrom<QueryParamParametersSet> for sfv::Parameters {
 
     fn try_from(value: QueryParamParametersSet) -> Result<Self, Self::Error> {
         let mut sfv_parameters = sfv::Parameters::new();
+        let (mut req_seen, mut name_seen) = (false, false);
         for param in &value.0 {
             match param {
                 QueryParamParameters::Req => {
+                    if req_seen {
+                        return Err(ImplementationError::ParsingError(
+                            "`req` parameter not allowed as duplicate".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("req").to_owned();
                     sfv_parameters.insert(key, sfv::BareItem::Boolean(true));
+                    req_seen = true;
                 }
                 QueryParamParameters::Name(name) => {
+                    if name_seen {
+                        return Err(ImplementationError::ParsingError(
+                            "`name` parameter not allowed as duplicate".into(),
+                        ));
+                    }
                     let key = sfv::KeyRef::constant("name").to_owned();
                     let value = sfv::String::from_string(name.clone())
                         .map_err(|(_, s)| ImplementationError::ParsingError(format!(
@@ -291,6 +383,7 @@ impl TryFrom<QueryParamParametersSet> for sfv::Parameters {
                             &name, s
                         )))?;
                     sfv_parameters.insert(key, sfv::BareItem::String(value));
+                    name_seen = true;
                 }
             }
         }
@@ -305,7 +398,7 @@ impl TryFrom<DerivedComponent> for sfv::Item {
         fn template(name: &str, req: bool) -> Result<sfv::Item, ImplementationError> {
             let mut parameters = sfv::Parameters::new();
             if req {
-                let key = sfv::KeyRef::constant("sf").to_owned();
+                let key = sfv::KeyRef::constant("req").to_owned();
                 parameters.insert(key, sfv::BareItem::Boolean(true));
             }
 
@@ -421,9 +514,11 @@ impl TryFrom<sfv::Item> for CoveredComponent {
                     "@query" => CoveredComponent::Derived(DerivedComponent::Query {
                         req: fetch_req(value.params, "@query")?,
                     }),
-                    "@request-target" => CoveredComponent::Derived(DerivedComponent::Query {
-                        req: fetch_req(value.params, "@request-target")?,
-                    }),
+                    "@request-target" => {
+                        CoveredComponent::Derived(DerivedComponent::RequestTarget {
+                            req: fetch_req(value.params, "@request-target")?,
+                        })
+                    }
                     "@query-param" => {
                         let component = DerivedComponent::QueryParams {
                             parameters: value.params.try_into()?,
@@ -449,6 +544,196 @@ impl TryFrom<sfv::Item> for CoveredComponent {
             other_type => Err(ImplementationError::ParsingError(format!(
                 "Expected a stringified sfv::BareItem when parsing into a CoveredComponent, but encountered a different type {other_type:?}"
             ))),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sfv::SerializeValue;
+
+    use super::*;
+
+    #[test]
+    fn test_parsing_valid_derived_components() {
+        for case in [
+            r#""@authority""#,
+            r#""@authority";req"#,
+            r#""@method""#,
+            r#""@method";req"#,
+            r#""@path""#,
+            r#""@path";req"#,
+            r#""@target-uri""#,
+            r#""@target-uri";req"#,
+            r#""@scheme""#,
+            r#""@scheme";req"#,
+            r#""@status""#,
+            r#""@status";req"#,
+            r#""@request-target""#,
+            r#""@request-target";req"#,
+            r#""@query-param";name="foo""#,
+            r#""@query-param";name="foo";req"#,
+        ]
+        .iter()
+        {
+            let component: CoveredComponent = sfv::Parser::new(case)
+                .parse_item()
+                .unwrap()
+                .try_into()
+                .unwrap();
+            let CoveredComponent::Derived(derived) = component else {
+                panic!("Expected derived components, got HTTP")
+            };
+            let value: sfv::Item = derived.try_into().unwrap();
+            assert_eq!(&value.serialize_value(), case);
+        }
+    }
+
+    #[test]
+    fn test_parsing_valid_http_fields() {
+        for case in [
+            r#""content-length""#,
+            r#""content-length";sf"#,
+            r#""content-length";bs"#,
+            r#""content-length";tr"#,
+            r#""content-length";req"#,
+            r#""content-length";key="foo""#,
+            r#""Content-Length";req"#,
+        ]
+        .iter()
+        {
+            let component: CoveredComponent = sfv::Parser::new(case)
+                .parse_item()
+                .unwrap()
+                .try_into()
+                .unwrap();
+            let CoveredComponent::HTTP(http) = component else {
+                panic!("Expected HTTP field, got derived")
+            };
+            let value: sfv::Item = http.try_into().unwrap();
+            assert_eq!(value.serialize_value(), case.to_ascii_lowercase());
+        }
+    }
+
+    #[test]
+    fn test_parsing_invalid_http_fields() {
+        for case in [
+            r#""content-length";sf;bs"#,
+            r#""content-length";bs;sf"#,
+            r#""content-length";req;tr;key"#,
+            r#""content-length";key=1"#,
+            r#""content-length";sf;req;tr;key="foo""#,
+            r#""content-length";bs;req;tr;key="foo""#,
+        ]
+        .iter()
+        {
+            let item: sfv::Item = sfv::Parser::new(case).parse_item().unwrap();
+            CoveredComponent::try_from(item).expect_err("This case should error");
+        }
+    }
+
+    #[test]
+    fn test_known_edge_cases_in_http_parsing() {
+        for (case, expected) in [
+            (r#""content-length";sf;sf"#, r#""content-length";sf"#),
+            (r#""content-length";bs;bs"#, r#""content-length";bs"#),
+            (r#""content-length";req;req"#, r#""content-length";req"#),
+            (r#""content-length";tr;tr"#, r#""content-length";tr"#),
+            (
+                r#""content-length";key="foo";key="bar""#,
+                r#""content-length";key="bar""#,
+            ),
+        ]
+        .iter()
+        {
+            {
+                let component: CoveredComponent = sfv::Parser::new(case)
+                    .parse_item()
+                    .unwrap()
+                    .try_into()
+                    .unwrap();
+                let CoveredComponent::HTTP(http) = component else {
+                    panic!("Expected HTTP field, got derived")
+                };
+                let value: sfv::Item = http.try_into().unwrap();
+                assert_eq!(value.serialize_value(), expected.to_ascii_lowercase());
+            }
+        }
+    }
+
+    #[test]
+    fn test_known_edge_cases_in_derived_component_parsing() {
+        for (case, expected) in [(
+            r#""@query-param";name="foo";name="bar""#,
+            r#""@query-param";name="bar""#,
+        )]
+        .iter()
+        {
+            {
+                let component: CoveredComponent = sfv::Parser::new(case)
+                    .parse_item()
+                    .unwrap()
+                    .try_into()
+                    .unwrap();
+                let CoveredComponent::Derived(derived) = component else {
+                    panic!("Expected derived field, got HTTP")
+                };
+                let value: sfv::Item = derived.try_into().unwrap();
+                assert_eq!(value.serialize_value(), expected.to_ascii_lowercase());
+            }
+        }
+    }
+
+    #[test]
+    fn test_parsing_invalid_derived_components() {
+        for case in [
+            r#""@notacomponent""#,
+            r#""@authority";req=true"#,
+            r#""@authority";req=1"#,
+            r#""@authority";req=:fff:"#,
+            r#""@authority";req="ddd""#,
+            r#""@authority";invalid"#,
+            r#""@method";invalid"#,
+        ]
+        .iter()
+        {
+            let item: sfv::Item = sfv::Parser::new(case).parse_item().unwrap();
+            CoveredComponent::try_from(item).expect_err("This case should error");
+        }
+    }
+
+    #[test]
+    fn test_http_parameter_parsing_does_not_allow_duplicates_or_invalid_sets() {
+        for content in [
+            vec![HTTPFieldParameters::Req, HTTPFieldParameters::Req],
+            vec![HTTPFieldParameters::Sf, HTTPFieldParameters::Sf],
+            vec![HTTPFieldParameters::Bs, HTTPFieldParameters::Bs],
+            vec![HTTPFieldParameters::Tr, HTTPFieldParameters::Tr],
+            vec![
+                HTTPFieldParameters::Key("foo".into()),
+                HTTPFieldParameters::Key("bar".into()),
+            ],
+        ]
+        .into_iter()
+        {
+            sfv::Parameters::try_from(HTTPFieldParametersSet(content))
+                .expect_err("This case should error");
+        }
+    }
+
+    #[test]
+    fn test_query_param_parsing_does_not_allow_duplicates_or_invalid_sets() {
+        for content in [
+            vec![QueryParamParameters::Req, QueryParamParameters::Req],
+            vec![
+                QueryParamParameters::Name("foo".into()),
+                QueryParamParameters::Name("bar".into()),
+            ],
+        ]
+        .into_iter()
+        {
+            sfv::Parameters::try_from(QueryParamParametersSet(content))
+                .expect_err("This case should error");
         }
     }
 }

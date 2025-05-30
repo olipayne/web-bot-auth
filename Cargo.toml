@@ -6,7 +6,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     "Akshat Mahajan <akshat@cloudflare.com>",
     "Gauri Baraskar <gbaraskar@cloudflare.com>",
@@ -27,4 +27,4 @@ indexmap = "2.0"
 sfv = "0.13.0"
 
 # workspace dependencies
-web-bot-auth = { version = "0.0.1", path = "./crates/web-bot-auth" }
+web-bot-auth = { version = "0.0.2", path = "./crates/web-bot-auth" }
