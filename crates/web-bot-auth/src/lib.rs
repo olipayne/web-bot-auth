@@ -90,14 +90,14 @@ pub enum WebBotAuthError {
     NotImplemented,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct SignatureParams {
     raw: sfv::Parameters,
     details: ParameterDetails,
 }
 
 /// Parsed values from `Signature-Input` header.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct ParameterDetails {
     /// The value of the `alg` parameter, if present and resolves to a known algorithm.
     pub algorithm: Option<Algorithm>,
@@ -201,7 +201,7 @@ impl SignatureBaseBuilder {
 }
 
 /// A representation of the signature base to be generated during verification and signing.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct SignatureBase {
     components: IndexMap<CoveredComponent, String>,
     parameters: SignatureParams,
@@ -268,7 +268,7 @@ impl SignatureBase {
 
 /// Subset of [HTTP signature algorithm](https://www.iana.org/assignments/http-message-signature/http-message-signature.xhtml)
 /// implemented in this module. In the future, we may support more.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub enum Algorithm {
     /// [The `ed25519` algorithm](https://www.rfc-editor.org/rfc/rfc9421#name-eddsa-using-curve-edwards25)
     Ed25519,
@@ -447,14 +447,14 @@ impl MessageSigner {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct ParsedLabel {
     signature: Vec<u8>,
     base: SignatureBase,
 }
 
 /// A `MessageVerifier` performs the verifications needed for a signed message.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MessageVerifier {
     parsed: ParsedLabel,
     algorithm: Algorithm,
@@ -462,6 +462,7 @@ pub struct MessageVerifier {
 
 /// Micro-measurements of different parts of the process in a call to `verify()`.
 /// Useful for measuring overhead.
+#[derive(Clone, Debug)]
 pub struct SignatureTiming {
     /// Time taken to generate a signature base,
     pub generation: Duration,
@@ -637,7 +638,7 @@ pub trait WebBotAuthSignedMessage: SignedMessage {
 }
 
 /// A verifier for Web Bot Auth messages specifically.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct WebBotAuthVerifier {
     message_verifier: MessageVerifier,
     /// The value of `Signature-Agent` header, if resolved to a link
