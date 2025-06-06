@@ -7,7 +7,10 @@
     "bundle:chrome": "npm run build:chrome && node ./scripts/build_web_artifacts.mjs",
     "start:config": "http-server ./dist/web-ext-artifacts -p 8000",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "format": "prettier --write 'src/**/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -30,8 +33,14 @@
   "devDependencies": {
     "@types/chrome": "0.0.326",
     "@types/libsodium-wrappers": "0.7.14",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
     "crx": "5.0.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
     "http-server": "14.1.1",
+    "prettier": "^3.5.3",
     "rimraf": "6.0.1",
     "tsup": "8.5.0"
   }

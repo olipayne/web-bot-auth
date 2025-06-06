@@ -3,48 +3,34 @@ import {
   signatureHeadersSync,
   helpers,
   jwkToKeyID,
-} from "web-bot-auth";
-import _sodium from "libsodium-wrappers";
-import jwk from "../../rfc9421-keys/ed25519.json" assert { type: "json" };
-
-// Make sure sodium is ready
-(async () => {
-  await _sodium.ready;
-})();
-
-// THIS IS DETERMINISTIC AND BASED ON THE KEY MATERIAL
-let KEY_ID = "not-set-yet";
-jwkToKeyID(jwk, helpers.WEBCRYPTO_SHA256, helpers.BASE64URL_DECODE).then(
-  (kid) => (KEY_ID = kid)
-);
+} from 'web-bot-auth';
+import _sodium from 'libsodium-wrappers';
+import jwk from '../../rfc9421-keys/ed25519.json' assert { type: 'json' };
 
 const MAX_AGE_IN_MS = 1000 * 60 * 60; // 1 hour
 
 class Ed25519Signer {
-  public alg: Algorithm = "ed25519";
+  public alg: Algorithm = 'ed25519';
   public keyid: string;
-  private privateKey: Uint8Array<ArrayBuffer>;
+  private privateKey: Uint8Array;
 
-  constructor(public jwk: JsonWebKey) {
+  constructor(jwk: JsonWebKey, keyid: string) {
     const sodium = _sodium;
-
-    // Base64URL decode helper
-    const base64urlDecode = (str) =>
+    const base64urlDecode = (str: string) =>
       sodium.from_base64(str, sodium.base64_variants.URLSAFE_NO_PADDING);
 
-    // Decode keys
-    const privateKey = base64urlDecode(jwk.d); // 32 bytes
-    const publicKey = base64urlDecode(jwk.x); // 32 bytes
+    if (!jwk.d || !jwk.x) {
+      throw new Error("Invalid JWK: missing 'd' or 'x' properties.");
+    }
 
-    // Build the full 64-byte secret key: privateKey || publicKey
+    const privateKey = base64urlDecode(jwk.d);
+    const publicKey = base64urlDecode(jwk.x);
     const fullSecretKey = new Uint8Array(64);
     fullSecretKey.set(privateKey);
     fullSecretKey.set(publicKey, 32);
 
     this.privateKey = fullSecretKey;
-
-    // NOTE: this MUST be computed from the public key bytes. It just so happen Chrome does not easily allow to perform a sha256 synchronously
-    this.keyid = KEY_ID;
+    this.keyid = keyid;
   }
 
   signSync(data: string): Uint8Array {
@@ -56,66 +42,82 @@ class Ed25519Signer {
 }
 
 const EXCLUDED_RESOURCE_TYPES = [
-  "stylesheet",
-  "script",
-  "image",
-  "font",
-  "object",
-  "media",
+  'stylesheet',
+  'script',
+  'image',
+  'font',
+  'object',
+  'media',
 ];
 
-chrome.webRequest.onBeforeSendHeaders.addListener(
-  function (details) {
-    if (EXCLUDED_RESOURCE_TYPES.includes(details.type)) {
-      return { requestHeaders: details.requestHeaders };
-    }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const request = new Request(details.url, {
-      method: details.method,
-      headers: details.requestHeaders?.map((h) => [h.name, h.value!])!,
-    });
-    const now = new Date();
-    const headers = signatureHeadersSync(request, new Ed25519Signer(jwk), {
-      created: now,
-      expires: new Date(now.getTime() + MAX_AGE_IN_MS),
-    });
+async function initialize() {
+  await _sodium.ready;
+  const keyId = await jwkToKeyID(
+    jwk,
+    helpers.WEBCRYPTO_SHA256,
+    helpers.BASE64URL_DECODE
+  );
+  const signer = new Ed25519Signer(jwk, keyId);
 
-    details.requestHeaders?.push({
-      name: "Signature",
-      value: headers["Signature"],
-    });
-    details.requestHeaders?.push({
-      name: "Signature-Input",
-      value: headers["Signature-Input"],
-    });
+  chrome.webRequest.onBeforeSendHeaders.addListener(
+    (details) => {
+      if (EXCLUDED_RESOURCE_TYPES.includes(details.type)) {
+        return { requestHeaders: details.requestHeaders };
+      }
+      const request = new Request(details.url, {
+        method: details.method,
+        headers:
+          details.requestHeaders?.map((h) => [h.name, h.value ?? '']) ?? [],
+      });
+      const now = new Date();
+      const headers = signatureHeadersSync(request, signer, {
+        created: now,
+        expires: new Date(now.getTime() + MAX_AGE_IN_MS),
+      });
 
-    return { requestHeaders: details.requestHeaders };
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking", "requestHeaders"]
-);
-
-chrome.webRequest.onHeadersReceived.addListener(
-  (details) => {
-    if (details.responseHeaders) {
-      const acah = details.responseHeaders.find(
-        (h) => h.name.toLowerCase() === "access-control-allow-headers"
-      );
-      if (acah && acah.value) {
-        acah.value = `${acah.value}, Signature, Signature-Input`;
-      } else {
-        details.responseHeaders.push({
-          name: "Access-Control-Allow-Headers",
-          value: "Signature, Signature-Input",
+      if (details.requestHeaders) {
+        details.requestHeaders.push({
+          name: 'Signature',
+          value: headers['Signature'],
+        });
+        details.requestHeaders.push({
+          name: 'Signature-Input',
+          value: headers['Signature-Input'],
         });
       }
-      return { responseHeaders: details.responseHeaders };
-    }
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking", "responseHeaders", "extraHeaders"]
-);
 
-chrome.runtime.onStartup.addListener(() => {
-  console.log(`onStartup()`);
-});
+      return { requestHeaders: details.requestHeaders };
+    },
+    { urls: ['<all_urls>'] },
+    ['blocking', 'requestHeaders']
+  );
+
+  chrome.webRequest.onHeadersReceived.addListener(
+    (details) => {
+      if (details.responseHeaders) {
+        const acah = details.responseHeaders.find(
+          (h) => h.name.toLowerCase() === 'access-control-allow-headers'
+        );
+        if (acah && acah.value) {
+          acah.value = `${acah.value}, Signature, Signature-Input`;
+        } else {
+          details.responseHeaders.push({
+            name: 'Access-Control-Allow-Headers',
+            value: 'Signature, Signature-Input',
+          });
+        }
+        return { responseHeaders: details.responseHeaders };
+      }
+    },
+    { urls: ['<all_urls>'] },
+    ['blocking', 'responseHeaders', 'extraHeaders']
+  );
+
+  chrome.runtime.onStartup.addListener(() => {
+    console.log(`onStartup()`);
+  });
+
+  console.log('Extension initialized.');
+}
+
+initialize().catch(console.error);
