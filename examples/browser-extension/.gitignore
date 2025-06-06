@@ -1,3 +1,5 @@
 dist/
 node_modules/
 *.pem
+policy/policy.json
+policy/com.google.Chrome.managed.plist

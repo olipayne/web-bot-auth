@@ -55,8 +55,20 @@ class Ed25519Signer {
   }
 }
 
+const EXCLUDED_RESOURCE_TYPES = [
+  "stylesheet",
+  "script",
+  "image",
+  "font",
+  "object",
+  "media",
+];
+
 chrome.webRequest.onBeforeSendHeaders.addListener(
   function (details) {
+    if (EXCLUDED_RESOURCE_TYPES.includes(details.type)) {
+      return { requestHeaders: details.requestHeaders };
+    }
     // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     const request = new Request(details.url, {
       method: details.method,
@@ -81,6 +93,27 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   },
   { urls: ["<all_urls>"] },
   ["blocking", "requestHeaders"]
+);
+
+chrome.webRequest.onHeadersReceived.addListener(
+  (details) => {
+    if (details.responseHeaders) {
+      const acah = details.responseHeaders.find(
+        (h) => h.name.toLowerCase() === "access-control-allow-headers"
+      );
+      if (acah && acah.value) {
+        acah.value = `${acah.value}, Signature, Signature-Input`;
+      } else {
+        details.responseHeaders.push({
+          name: "Access-Control-Allow-Headers",
+          value: "Signature, Signature-Input",
+        });
+      }
+      return { responseHeaders: details.responseHeaders };
+    }
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking", "responseHeaders", "extraHeaders"]
 );
 
 chrome.runtime.onStartup.addListener(() => {

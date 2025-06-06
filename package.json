@@ -26,6 +26,9 @@
     "typescript-eslint": "^8.25.0",
     "vitest": "^3.0.7"
   },
+  "dependencies": {
+    "libsodium-wrappers": "^0.7.15"
+  },
   "workspaces": [
     "examples/*",
     "packages/*"
